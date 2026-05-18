@@ -14,6 +14,8 @@ def create_app() -> FastAPI:
         title="AtHomeServer API",
         description="My local home server backend",
         version="0.1.0",
+        docs_url="/api/docs",
+        openapi_url="/api/openapi.json",
     )
 
     app.include_router(router)

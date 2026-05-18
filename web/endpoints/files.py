@@ -14,7 +14,7 @@ async def get_files(controller: Annotated[FileController, Depends()]):
 
 
 @router.get("cheese", response_model=list[FileDto])
-async def get_cheese(controller: Annotated[FileController, Depends()]):
+async def get_cheese():
     return JSONResponse(
         status_code=500,
         content={"msg": "hello!"}
