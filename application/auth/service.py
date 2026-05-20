@@ -1,9 +1,14 @@
 from typing import Any
 
 import application.auth.utils as auth_utils
-from application.auth.dto import AuthCallbackDto, AuthLoginDto
-from application.auth.usecases.callback import handle_callback
-from application.auth.usecases.login import handle_login
+from application.auth.dto import (
+    AuthCallbackDto,
+    AuthCallbackResultDto,
+    AuthLoginDto,
+    AuthLoginResultDto,
+)
+from application.auth.usecases.callback import AuthCallbackUseCase
+from application.auth.usecases.login import AuthLoginUseCase
 from application.redis.dto import RedisSessionDto
 from application.redis.service import RedisSessionService
 from web.trojonetworks.dtos.auth import TokensDto
@@ -29,41 +34,21 @@ class AuthService:
 
     async def refresh_tokens(self, user_data: RedisSessionDto):
         try:
-            response = await self.api_client
+            response = await self.api_client.refresh_token(
+                user_data.tokens.refresh_token
+            )
             _ = response.raise_for_status()
             data = TokensDto.model_validate(response.json())
 
-            self._save_tokens(data.access_token, data.refresh_token)
+            print("Got the data", data)
+
         except Exception as err:
             print(f"Failed to refresh tokens: {err}")
-            self.clear_tokens()
 
-    async def login(self, redirect_url: str | None = None) -> str:
-        return await handle_login(AuthLoginDto(redirect_url=redirect_url))
+    async def login(self, redirect_url: str | None = None) -> AuthLoginResultDto:
+        use_case = AuthLoginUseCase()
+        return await use_case(AuthLoginDto(redirect_url=redirect_url))
 
-    async def callback(self, code: str, state: str) -> str:
-        return await handle_callback(self, AuthCallbackDto(code=code, state=state))
-
-    async def get_current_user(self) -> dict[str, Any]:
-        if self.user_proxy:
-            return self.user_proxy
-
-        headers = await self.apply_headers({})
-        response = await self.api.get("/me", headers=headers)
-        _ = response.raise_for_status()
-
-        self.user_proxy = response.json()
-        return self.user_proxy
-
-    def logout(self):
-        self.clear_tokens()
-        return "/"
-
-    def _save_tokens(self, a_token: str, r_token: str):
-        self.local_storage[self.access_token_key] = a_token
-        self.local_storage[self.refresh_token_key] = r_token
-
-    def clear_tokens(self):
-        _ = self.local_storage.pop(self.access_token_key, None)
-        _ = self.local_storage.pop(self.refresh_token_key, None)
-        self.user_proxy = None
+    async def callback(self, code: str, state: str) -> AuthCallbackResultDto:
+        use_case = AuthCallbackUseCase()
+        return await use_case(AuthCallbackDto(code=code, state=state))

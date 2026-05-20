@@ -3,6 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from application.auth.dto import AuthLoginResultDto
 from application.auth.service import AuthService
 from core.common.bases import BaseController
 from core.common.decorators import resolve_response
@@ -24,8 +25,8 @@ class AuthController(BaseController):
     @resolve_response(303)
     async def callback(self, code: str, state: str) -> Result[str]:
         try:
-            url = await self.service.callback(code, state)
-            return ok(url)
+            result = await self.service.callback(code, state)
+            return ok(result.redirect_url)
         except CustomException as exc:
             return err(exc)
         except Exception as exc:
@@ -34,8 +35,8 @@ class AuthController(BaseController):
     @resolve_response(303)
     async def login(self) -> Result[str]:
         try:
-            url = self.service.login()
-            return ok(url)
+            result = await self.service.login()
+            return ok(result.redirect_url)
         except CustomException as exc:
             return err(exc)
         except Exception as exc:
