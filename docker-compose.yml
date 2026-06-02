@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
     env_file:
-      - .env
+      - backend/.env
     ports:
       - "5432:5432"
     volumes:
@@ -19,13 +17,13 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     env_file:
-      - .env
+      - backend/.env
     volumes:
-      - .:/app
-      - venv_data:/app/.venv
+      - ./backend:/backend
+      - venv_data:/backend/.venv
       - uv_cache:/root/.cache/uv
     depends_on:
       - postgres
@@ -33,11 +31,11 @@ services:
 
   frontend:
     build:
-      context: ./web/app
+      context: ./frontend
       dockerfile: Dockerfile
     volumes:
-      - ./web/app:/app
-      - node_modules_data:/app/node_modules
+      - ./frontend:/frontend
+      - node_modules_data:/frontend/node_modules
     depends_on:
       - backend
 
@@ -47,8 +45,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./web/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./web/certs:/etc/nginx/certs:ro
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/certs:/etc/nginx/certs:ro
     depends_on:
       - backend
 
