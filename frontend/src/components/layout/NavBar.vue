@@ -23,7 +23,7 @@
               <RouterLink class="nav-link" to="#">Features</RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link" to="#">Pricing</RouterLink>
+              <RouterLink class="nav-link" to="gym">Gym</RouterLink>
             </li>
             <li class="nav-item">
               <RouterLink class="nav-link disabled" to="#" tabindex="-1" aria-disabled="true">Disabled</RouterLink>
