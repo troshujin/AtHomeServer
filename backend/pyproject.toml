@@ -20,3 +20,6 @@ dependencies = [
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+
+[tool.mypy]
+mypy_path = "backend"

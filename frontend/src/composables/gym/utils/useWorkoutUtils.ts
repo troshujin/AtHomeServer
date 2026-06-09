@@ -1,6 +1,6 @@
 import type { Workout } from '@/types/gym';
 
-export function useWorkout(workout: Workout) {
+export function useWorkoutUtils(workout: Workout) {
   const getVolume = (): number => {
     return workout.exercises.reduce((exerciseAcc, exercise) => {
       const exerciseVolume = exercise.sets.reduce((setAcc, set) => {

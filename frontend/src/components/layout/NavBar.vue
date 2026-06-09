@@ -2,7 +2,7 @@
   <div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <RouterLink class="navbar-brand" to="#">MyApp</RouterLink>
+        <RouterLink class="navbar-brand" to="/">AtHomeServer</RouterLink>
         <button
           class="navbar-toggler"
           type="button"
@@ -17,7 +17,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
             <li class="nav-item">
-              <RouterLink class="nav-link active" aria-current="page" to="#">Home</RouterLink>
+              <RouterLink class="nav-link active" aria-current="page" to="/">Home</RouterLink>
             </li>
             <li class="nav-item">
               <RouterLink class="nav-link" to="#">Features</RouterLink>

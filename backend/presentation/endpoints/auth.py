@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from application.auth.dto import AuthCallbackDto, AuthLoginDto
 from application.auth.usecases.callback import AuthCallbackUseCase
 from application.auth.usecases.login import AuthLoginUseCase
-from core.decorators import resolve_response
+from core.decorators.response import resolve_response
 
 router = APIRouter(prefix="/auth")
 
