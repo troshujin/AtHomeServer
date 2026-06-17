@@ -14,7 +14,7 @@ Response = JSONResponse | RedirectResponse
 
 def resolve_response(status_code: int = 200):
     def outer_wrapper(
-        func: Callable[P, Coroutine[object, object, Result[T]]],
+        func: Callable[P, Coroutine[object, object, Result[T] | Response]],
     ) -> Callable[P, Coroutine[object, object, Response]]:
 
         @functools.wraps(func)
@@ -23,11 +23,15 @@ def resolve_response(status_code: int = 200):
             return handle_result(status_code, result)
 
         return wrapper
+
     return outer_wrapper
 
 
-def handle_result(status_code: int, result: Result[T]) -> Response:
+def handle_result(status_code: int, result: Result[T] | Response) -> Response:
     match result:
+        case JSONResponse() | RedirectResponse():
+            return result
+
         case Failure(error=exc):
             return JSONResponse(status_code=exc.http_code, content=exc.to_dict())
 

@@ -1,12 +1,13 @@
+from uuid import UUID
 from pydantic import BaseModel
 
 
 class ShortPermissionDto(BaseModel):
-    id: str
+    id: UUID
     name: str
 
 
-class NetworkPermissionsCollectionDto(BaseModel):
-    id: str
+class NetworkPermissionsDto(BaseModel):
+    id: UUID
     name: str
     permissions: list[ShortPermissionDto]

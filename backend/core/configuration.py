@@ -13,10 +13,6 @@ class EnvConfig(BaseSettings):
     DB_CONNECTION_STRING: str
     REDIS_URL: str
 
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         env_file=".env",
         extra="ignore",

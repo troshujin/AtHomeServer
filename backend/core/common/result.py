@@ -5,8 +5,9 @@ import inspect
 from core.exceptions.base import CustomException
 
 
-@dataclass(slots=True)
-class Success[T, E = CustomException]:
+# 1. Removed '= CustomException' from the class definition
+@dataclass(slots=True, frozen=True)
+class Success[T, E]:
     value: T
 
     @property
@@ -18,7 +19,8 @@ class Success[T, E = CustomException]:
         return False
 
     def map[U](self, f: Callable[[T], U]) -> "Result[U, E]":
-        return Success(f(self.value))
+        # 2. Explicitly pass [U, E] so it doesn't guess
+        return Success[U, E](f(self.value))
 
     def bind[U](self, f: Callable[[T], "Result[U, E]"]) -> "Result[U, E]":
         return f(self.value)
@@ -30,8 +32,9 @@ class Success[T, E = CustomException]:
         return self.value
 
 
-@dataclass(slots=True)
-class Failure[T, E = CustomException]:
+# 3. Removed '= CustomException' here too
+@dataclass(slots=True, frozen=True)
+class Failure[T, E]:
     error: E
 
     @property
@@ -64,7 +67,7 @@ def succeed[T, E = CustomException](value: T) -> Result[T, E]:
     return Success[T, E](value)
 
 
-def fail[T, E = CustomException](error: E) -> Result[T, E]:
+def fail[T](error: CustomException) -> Result[T, CustomException]:
     file_name = "unknown"
     line_number = 0
 
@@ -78,6 +81,5 @@ def fail[T, E = CustomException](error: E) -> Result[T, E]:
         file_name = frame_info.filename
         line_number = frame_info.lineno
 
-
-    print(f"Fail caught in {file_name} at {line_number}")
-    return Failure[T, E](error)
+    print(f"Fail caught in {file_name[1:]}:{line_number} with '{error.message}'")
+    return Failure[T, CustomException](error)

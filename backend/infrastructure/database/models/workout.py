@@ -10,8 +10,8 @@ from infrastructure.database.models._base import Base
 class Workout(Base):
     __tablename__: str = "workout"
 
-    started_at: Mapped[datetime] = mapped_column(DateTime)
-    ended_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     exercises: Mapped[list["WorkoutExercise"]] = relationship(back_populates="workout")
 
@@ -20,8 +20,8 @@ class WorkoutExercise(Base):
     __tablename__: str = "workout_exercise"
 
     name: Mapped[str] = mapped_column()
-    started_at: Mapped[datetime] = mapped_column(DateTime)
-    ended_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     workout_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("workout.id"))
     workout: Mapped["Workout"] = relationship(back_populates="exercises")

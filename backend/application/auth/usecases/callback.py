@@ -1,11 +1,13 @@
-from typing import cast
+from fastapi import Depends
+from typing import cast, Annotated
 
 from fastapi.responses import RedirectResponse
 from pydantic import ValidationError
 
+from application.auth.usecases.refresh_user_session import RefreshUserSessionUseCase
 import application.auth.utils as auth_utils
 from application.auth.dto import AuthCallbackDto
-from core.common.result import Result, fail, succeed
+from core.common.result import Failure, Result, fail, succeed
 from core.configuration import config
 from core.exceptions.base import CustomException
 from infrastructure.cache.keygen.auth import AuthCacheKeyGenerator
@@ -16,9 +18,15 @@ from infrastructure.trojonetworks.service.api_client import TrojoNetworksClient
 
 
 class AuthCallbackUseCase:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        refresh_user_session_use_case: Annotated[RefreshUserSessionUseCase, Depends()],
+    ) -> None:
         self.redis: RedisSessionService = RedisSessionService()
         self.api_client: TrojoNetworksClient = TrojoNetworksClient()
+        self.refresh_user_session_use_case: RefreshUserSessionUseCase = (
+            refresh_user_session_use_case
+        )
 
     async def __call__(self, payload: AuthCallbackDto) -> Result[RedirectResponse]:
         token_key = payload.state
@@ -68,18 +76,17 @@ class AuthCallbackUseCase:
             )
 
         user_session_id = AuthCacheKeyGenerator.new_id()
-        user_session_id_key = AuthCacheKeyGenerator.session(user_session_id)
-
         rt_data = auth_utils.decode_refresh_jwt(tokens.refresh_token)
-        user_info = RedisSessionDto(
-            tokens=tokens,
+
+        user_session = RedisSessionDto(
+            id=user_session_id,
+            tokens=tokens
         )
 
-        await self.redis.set(
-            user_session_id_key,
-            user_info.model_dump_json(),
-            rt_data.exp,
-        )
+        user_info = await self.refresh_user_session_use_case(user_session=user_session)
+
+        if isinstance(user_info, Failure):
+            return fail(user_info.error)
 
         result = RedirectResponse(url=login_session.target_url, status_code=303)
 

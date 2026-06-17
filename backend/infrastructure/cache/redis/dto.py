@@ -1,13 +1,14 @@
 from pydantic import BaseModel
 
 from infrastructure.trojonetworks.dtos.auth import TokensDto
+from infrastructure.trojonetworks.dtos.permission import ShortPermissionDto
 from infrastructure.trojonetworks.dtos.user import UserProxyDto
-from infrastructure.trojonetworks.permission import NetworkPermissionsCollectionDto
 
 
 class RedisSessionDto(BaseModel):
+    id: str
     tokens: TokensDto
-    permissions: list[NetworkPermissionsCollectionDto] = []
+    permissions: list[ShortPermissionDto] = []
     profile: UserProxyDto | None = None
 
 

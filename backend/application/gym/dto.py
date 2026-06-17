@@ -1,57 +1,51 @@
 from datetime import datetime
 
-from core.common.schema import APIBaseModel, BaseSearchQuery
+from core.common.schema import APIBaseModel, BaseEntity, BaseSearchQuery
 
 
 class FetchWorkoutFilters(BaseSearchQuery):
     search_query: str | None = None
 
 
-class BaseEntity(APIBaseModel):
-    id: str
-    created_at: datetime
-    updated_at: datetime
-
-
-class WorkoutRep(BaseEntity):
+class WorkoutRepDto(BaseEntity):
     weight: float
     amount: int
 
 
-class WorkoutSet(BaseEntity):
-    reps: list[WorkoutRep]
+class WorkoutSetDto(BaseEntity):
+    reps: list[WorkoutRepDto]
 
 
-class WorkoutExercise(BaseEntity):
+class WorkoutExerciseDto(BaseEntity):
     name: str
-    sets: list[WorkoutSet]
+    sets: list[WorkoutSetDto]
     started_at: datetime
-    ended_at: datetime
+    ended_at: datetime | None
 
 
-class Workout(BaseEntity):
-    exercises: list[WorkoutExercise]
+class WorkoutDto(BaseEntity):
+    exercises: list[WorkoutExerciseDto]
     started_at: datetime
-    ended_at: datetime
+    ended_at: datetime | None
 
 
-class MutateWorkoutRep(APIBaseModel):
+class MutateWorkoutRepDto(APIBaseModel):
     weight: float
     amount: int
 
 
-class MutateWorkoutSet(APIBaseModel):
-    reps: list[MutateWorkoutRep]
+class MutateWorkoutSetDto(APIBaseModel):
+    reps: list[MutateWorkoutRepDto]
 
 
-class MutateWorkoutExercise(APIBaseModel):
+class MutateWorkoutExerciseDto(APIBaseModel):
     name: str
-    sets: list[MutateWorkoutSet]
+    sets: list[MutateWorkoutSetDto]
     started_at: datetime
-    ended_at: datetime
+    ended_at: datetime | None
 
 
-class MutateWorkout(APIBaseModel):
-    exercises: list[MutateWorkoutExercise]
+class MutateWorkoutDto(APIBaseModel):
+    exercises: list[MutateWorkoutExerciseDto]
     started_at: datetime
-    ended_at: datetime
+    ended_at: datetime | None

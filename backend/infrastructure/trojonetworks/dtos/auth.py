@@ -31,6 +31,8 @@ class TokensDto(BaseModel):
     access_token: str = Field(alias="accessToken")
     refresh_token: str = Field(alias="refreshToken")
 
+    model_config: ClassVar[ConfigDict] = ConfigDict(populate_by_name=True)
+
 
 class AccessTokenPayloadDto(BaseModel):
     aud: str

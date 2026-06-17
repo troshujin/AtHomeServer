@@ -1,6 +1,7 @@
 import traceback
 from typing import override
 
+
 class CustomException(Exception):
     message: str = "An unexpected server error occurred."
     code: str = "INTERNAL_SERVER_ERROR"
@@ -9,9 +10,7 @@ class CustomException(Exception):
     details: dict[str, object]
 
     def __init__(
-        self,
-        message: str | None = None,
-        details: dict[str, object] | None = None
+        self, message: str | None = None, details: dict[str, object] | None = None
     ) -> None:
         if message:
             self.message = message

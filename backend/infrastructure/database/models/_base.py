@@ -13,11 +13,11 @@ class Base(DeclarativeBase):
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime,
+        DateTime(timezone=True),
         default=func.now(),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime,
+        DateTime(timezone=True),
         default=func.now(),
         onupdate=func.now(),
     )
