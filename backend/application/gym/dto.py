@@ -24,6 +24,7 @@ class WorkoutExerciseDto(BaseEntity):
 
 
 class WorkoutDto(BaseEntity):
+    name: str
     exercises: list[WorkoutExerciseDto]
     started_at: datetime
     ended_at: datetime | None
@@ -46,6 +47,7 @@ class MutateWorkoutExerciseDto(APIBaseModel):
 
 
 class MutateWorkoutDto(APIBaseModel):
+    name: str
     exercises: list[MutateWorkoutExerciseDto]
     started_at: datetime
     ended_at: datetime | None

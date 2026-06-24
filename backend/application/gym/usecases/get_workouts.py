@@ -27,7 +27,7 @@ class GetWorkoutsUseCase:
         return modifier
 
     async def __call__(self, filters: FetchWorkoutFilters) -> Result[list[WorkoutDto]]:
-        self.identity_service.get_current_user()
+        # self.identity_service.get_current_user_session()
 
         modifier = self.build_query_modifier(filters)
         workouts = await self.repo.get(modifier=modifier)

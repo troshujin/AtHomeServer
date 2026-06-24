@@ -4,7 +4,8 @@ from fastapi import Depends
 
 from application.auth.services.identity import IdentityService
 from application.gym.dto import MutateWorkoutDto, WorkoutDto
-from core.common.result import Result, succeed
+from core.common.result import Result, fail, succeed
+from core.exceptions.base import CustomException
 from infrastructure.database.models import (
     Workout,
     WorkoutExercise,
@@ -25,10 +26,19 @@ class CreateWorkoutUseCase:
         self.repo: WorkoutRepository = WorkoutRepository(session=session)
 
     async def __call__(self, new_workout_dto: MutateWorkoutDto) -> Result[WorkoutDto]:
-        self.identity_service.get_current_user()
+        user_session = await self.identity_service.get_current_user_session()
+
+        if not user_session:
+            return fail(CustomException("Corrupt user session"))
+
+        user = user_session.profile
+
+        if not user:
+            return fail(CustomException("Corrupt user session"))
 
         new_workout = Workout(
             **new_workout_dto.model_dump(exclude={"exercises"}),
+            user_id=user.id,
             exercises=[
                 WorkoutExercise(
                     **exercise_dto.model_dump(exclude={"sets"}),

@@ -19,13 +19,13 @@ class ValidateUserSessionUseCase:
         self,
         user_session: RedisSessionDto,
     ) -> Result[RedisSessionDto]:
-        access_valid = auth_utils.is_token_expired(user_session.tokens.access_token)
-        refresh_valid = auth_utils.is_token_expired(user_session.tokens.refresh_token)
+        access_expired = auth_utils.is_token_expired(user_session.tokens.access_token)
+        refresh_expired = auth_utils.is_token_expired(user_session.tokens.refresh_token)
 
-        if access_valid:
+        if not access_expired:
             return succeed(user_session)
 
-        if refresh_valid:
+        if not refresh_expired:
             user_session_result = await self.refresh_user_session(
                 user_session=user_session
             )

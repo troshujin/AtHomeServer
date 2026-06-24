@@ -1,3 +1,4 @@
+from httpx import Response
 import base64
 import hashlib
 import json
@@ -5,9 +6,15 @@ import os
 import time
 from typing import cast
 
+from pydantic import ValidationError
+
+from core.common.result import Result, fail, succeed
+from core.exceptions.base import CustomException
 from infrastructure.trojonetworks.dtos.auth import (
     AccessTokenPayloadDto,
     RefreshTokenPayloadDto,
+    SharedTokenPayloadDto,
+    TokensDto,
 )
 
 
@@ -27,6 +34,15 @@ def decode_jwt(token: str) -> AccessTokenPayloadDto:
         raise ValueError("Invalid JWT token")
 
 
+def decode_shared_jwt(token: str) -> SharedTokenPayloadDto:
+    try:
+        raw_payload = _decode_token(token)
+        return SharedTokenPayloadDto.model_validate(raw_payload)
+
+    except Exception:
+        raise ValueError("Invalid JWT token")
+
+
 def decode_refresh_jwt(token: str) -> RefreshTokenPayloadDto:
     try:
         raw_payload = _decode_token(token)
@@ -38,7 +54,7 @@ def decode_refresh_jwt(token: str) -> RefreshTokenPayloadDto:
 
 def is_token_expired(token: str) -> bool:
     try:
-        payload = decode_jwt(token)
+        payload = decode_shared_jwt(token)
         return time.time() > (payload.exp - 5)
     except Exception:
         return True
@@ -52,3 +68,23 @@ def generate_code_verifier() -> str:
 def generate_code_challenge(verifier: str) -> str:
     digest = hashlib.sha256(verifier.encode("utf-8")).digest()
     return base64.urlsafe_b64encode(digest).decode("utf-8").rstrip("=")
+
+
+def resolve_token_response(response: Response) -> Result[TokensDto]:
+    if response.status_code != 200:
+        return fail(CustomException("Failed to exchange code for tokens."))
+
+    token_data = cast(dict[str, str], response.json())
+    refresh_cookie = response.cookies.get("refreshToken")
+
+    if not refresh_cookie:
+        return fail(CustomException("Refresh token was not provided"))
+
+    token_data["refreshToken"] = refresh_cookie
+
+    try:
+        tokens = TokensDto.model_validate(token_data)
+    except ValidationError:
+        return fail(CustomException("Response from authentication server was invalid"))
+
+    return succeed(tokens)

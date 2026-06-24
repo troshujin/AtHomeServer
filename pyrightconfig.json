@@ -2,5 +2,6 @@
   "executionEnvironments": [
     { "root": "backend" }
   ],
+  "reportImportCycles": "none",
   "extraPaths": ["backend"]
 }

@@ -23,13 +23,11 @@ class TrojoNetworksClient:
         return response
 
     async def refresh_token(self, refresh_token: str) -> httpx.Response:
-        # Should send refresh token as cookie
         response = await self.api.post(
-            f"{config.auth.LOGIN_API_URL}/auth/refresh",
-            json={"refreshToken": refresh_token},
-            headers={"Host": "localhost"}
+            f"{config.auth.LOGIN_API_URL}/auth/{config.auth.NETWORK_ID}/refresh",
+            cookies={"refreshToken": refresh_token},
+            headers={"Host": "localhost"},
         )
-
         return response
 
     async def fetch_user(self, access_token: str) -> httpx.Response:

@@ -1,5 +1,5 @@
 from fastapi import Depends
-from typing import cast, Annotated
+from typing import Annotated
 
 from fastapi.responses import RedirectResponse
 from pydantic import ValidationError
@@ -13,17 +13,19 @@ from core.exceptions.base import CustomException
 from infrastructure.cache.keygen.auth import AuthCacheKeyGenerator
 from infrastructure.cache.redis.dto import RedisLoginSessionDto, RedisSessionDto
 from infrastructure.cache.redis.service import RedisSessionService
-from infrastructure.trojonetworks.dtos.auth import TokenRequestDto, TokensDto
+from infrastructure.trojonetworks.dtos.auth import TokenRequestDto
 from infrastructure.trojonetworks.service.api_client import TrojoNetworksClient
 
 
 class AuthCallbackUseCase:
     def __init__(
         self,
+        redis_service: Annotated[RedisSessionService, Depends()],
+        api_client: Annotated[TrojoNetworksClient, Depends()],
         refresh_user_session_use_case: Annotated[RefreshUserSessionUseCase, Depends()],
     ) -> None:
-        self.redis: RedisSessionService = RedisSessionService()
-        self.api_client: TrojoNetworksClient = TrojoNetworksClient()
+        self.redis: RedisSessionService = redis_service
+        self.api_client: TrojoNetworksClient = api_client
         self.refresh_user_session_use_case: RefreshUserSessionUseCase = (
             refresh_user_session_use_case
         )
@@ -47,6 +49,8 @@ class AuthCallbackUseCase:
         if not login_session.pkce_code_verifier:
             return fail(CustomException("Invalid state or missing code"))
 
+        await self.redis.delete(login_process_key)
+
         payload_dto = TokenRequestDto(
             code=payload.code,
             client_id=config.auth.CLIENT_ID,
@@ -54,26 +58,12 @@ class AuthCallbackUseCase:
         )
 
         response = await self.api_client.request_token(payload_dto)
+        tokens_result = auth_utils.resolve_token_response(response)
 
-        if response.status_code != 200:
-            return fail(CustomException("Failed to exchange code for tokens."))
+        if isinstance(tokens_result, Failure):
+            return Failure(tokens_result.error)
 
-        await self.redis.delete(login_process_key)
-
-        token_data = cast(dict[str, str], response.json())
-        refresh_cookie = response.cookies.get("refreshToken")
-
-        if not refresh_cookie:
-            return fail(CustomException("Refresh token was not provided"))
-
-        token_data["refreshToken"] = refresh_cookie
-
-        try:
-            tokens = TokensDto.model_validate(token_data)
-        except ValidationError:
-            return fail(
-                CustomException("Response from authentication server was invalid")
-            )
+        tokens = tokens_result.unwrap()
 
         user_session_id = AuthCacheKeyGenerator.new_id()
         rt_data = auth_utils.decode_refresh_jwt(tokens.refresh_token)

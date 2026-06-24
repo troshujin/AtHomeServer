@@ -22,11 +22,16 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(CustomException)
     async def _(_: Request, exc: CustomException):
-        logger.error(f"Unhandled CustomException:\n{exc.get_trace()}")
-        return JSONResponse(
+        # logger.error(f"Unhandled CustomException:\n{exc.get_trace()}")
+        response = JSONResponse(
             status_code=exc.http_code,
             content=exc.to_dict(),
         )
+
+        if exc.http_code == 401 or exc.http_code == 403:
+            response.delete_cookie("session_id")
+
+        return response
 
     return app
 

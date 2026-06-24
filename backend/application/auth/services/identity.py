@@ -3,6 +3,8 @@ from infrastructure.cache.keygen.auth import AuthCacheKeyGenerator
 from infrastructure.cache.redis.dto import RedisSessionDto
 from infrastructure.cache.redis.service import RedisSessionService
 
+import application.auth.utils as auth_utils
+
 
 class IdentityService:
     def __init__(self, request: Request):
@@ -21,5 +23,11 @@ class IdentityService:
         if not session:
             return None
 
-        result = RedisSessionDto.model_validate_json(session)
-        return result
+        user_session = RedisSessionDto.model_validate_json(session)
+
+        is_expired = auth_utils.is_token_expired(user_session.tokens.refresh_token)
+        if is_expired:
+            await self.redis.delete(session_key)
+            return None
+
+        return user_session

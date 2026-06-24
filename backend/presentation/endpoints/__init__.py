@@ -1,11 +1,16 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from core.dependencies.authentication import UseAuthentication
 
 from .files import router as files_router
 from .auth import router as auth_router
 from .workout import router as workout_router
 from .me import router as me_router
 
-router = APIRouter(prefix="")
+router = APIRouter(
+    prefix="",
+    dependencies=[Depends(UseAuthentication())],
+)
 
 
 router.include_router(files_router, tags=["Files"])

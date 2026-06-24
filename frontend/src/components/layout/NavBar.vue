@@ -26,7 +26,7 @@
               <RouterLink class="nav-link" to="gym">Gym</RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link disabled" to="#" tabindex="-1" aria-disabled="true">Disabled</RouterLink>
+              <a class="nav-link" href="https://api.localhost/auth/login" tabindex="-1">Login</a>
             </li>
           </ul>
         </div>

@@ -26,7 +26,7 @@ class CustomException(Exception):
         if self.details:
             payload["details"] = self.details
 
-        return {"error": payload}
+        return payload
 
     @override
     def __str__(self) -> str:

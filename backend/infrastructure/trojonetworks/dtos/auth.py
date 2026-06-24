@@ -34,22 +34,20 @@ class TokensDto(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(populate_by_name=True)
 
 
-class AccessTokenPayloadDto(BaseModel):
+class SharedTokenPayloadDto(BaseModel):
     aud: str
     exp: int
     iat: int
     iss: str
     jti: str
+    uid: str
+
+
+class AccessTokenPayloadDto(SharedTokenPayloadDto):
     name: str
     nbf: int
-    uid: str
     AccessIncomplete: str | None = None
 
 
-class RefreshTokenPayloadDto(BaseModel):
-    aud: str
-    exp: int
-    iat: int
-    iss: str
-    jti: str
-    uid: str
+class RefreshTokenPayloadDto(SharedTokenPayloadDto):
+    ...

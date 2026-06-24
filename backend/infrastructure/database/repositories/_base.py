@@ -46,6 +46,12 @@ class BaseRepository(Generic[Model]):
         await self.session.refresh(model)
         return model
 
+    async def upsert(self, model: Model) -> Model:
+        merged = await self.session.merge(model)
+        await self.session.commit()
+        await self.session.refresh(merged)
+        return merged
+
     async def update_by_id(
         self,
         model_id: int,
