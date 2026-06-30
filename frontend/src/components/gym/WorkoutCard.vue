@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useWorkout } from '@/composables/gym/workout';
+import { useWorkoutUtils } from '@/composables/gym/utils/useWorkoutUtils';
 import { formatDateShort } from '@/lib/formatters';
 import type { Workout } from '@/types/gym';
 import type { User } from '@/types/user';
@@ -20,5 +20,5 @@ const props = defineProps<{
   workout: Workout;
 }>();
 
-const workoutUtils = useWorkout(props.workout);
+const workoutUtils = useWorkoutUtils(props.workout);
 </script>
