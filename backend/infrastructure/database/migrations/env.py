@@ -70,9 +70,6 @@ async def run_async_migrations() -> None:
     config_dict = config.get_section(config.config_ini_section, {})
     config_dict["sqlalchemy.url"] = app_config.env.DB_CONNECTION_STRING
 
-    print(config_dict["sqlalchemy.url"])
-    print(config_dict["sqlalchemy.url"])
-
     connectable = async_engine_from_config(
         config_dict,
         prefix="sqlalchemy.",
