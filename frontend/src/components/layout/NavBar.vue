@@ -25,8 +25,12 @@
             <li class="nav-item">
               <RouterLink class="nav-link" to="gym">Gym</RouterLink>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="https://api.localhost/auth/login" tabindex="-1">Login</a>
+            <span>|</span>
+            <li class="nav-item" v-if="!authStore.currentUser">
+              <a class="nav-link" :href="`${API_BASE_URL}/auth/login`" tabindex="-1">Login</a>
+            </li>
+            <li class="nav-item" v-if="authStore.currentUser">
+              <RouterLink class="nav-link" to="me">{{ authStore.currentUser.username }}</RouterLink>
             </li>
           </ul>
         </div>
@@ -36,5 +40,13 @@
 </template>
 
 <script setup lang="ts">
+import { API_BASE_URL } from '@/lib/config';
+import { useAuthStore } from '@/stores/auth';
+import { onMounted } from 'vue';
 
+const authStore = useAuthStore();
+
+onMounted(async () => {
+  await authStore.getCurrentUser();
+})
 </script>

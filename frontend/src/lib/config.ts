@@ -1,10 +1,7 @@
-const API_URL = import.meta.env.VITE_API_BASE_URL;
-
 function getApiBaseUrl() {
-  if (window.location.hostname !== 'localhost') {
-    return `https://api.${window.location.hostname}/`;
-  }
-  return API_URL;
+  // const parts = window.location.hostname.split('.');
+  // const baseDomain = parts.slice(1).join('.');
+  return `https://${window.location.hostname}/api`;
 }
 
 export const API_BASE_URL = getApiBaseUrl();

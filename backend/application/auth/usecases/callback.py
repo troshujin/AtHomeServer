@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import Depends
 from typing import Annotated
 
@@ -78,6 +80,7 @@ class AuthCallbackUseCase:
         if isinstance(user_info, Failure):
             return fail(user_info.error)
 
+        expires_in = rt_data.exp - int(datetime.now(timezone.utc).timestamp())
         result = RedirectResponse(url=login_session.target_url, status_code=303)
 
         result.set_cookie(
@@ -86,7 +89,8 @@ class AuthCallbackUseCase:
             httponly=True,
             secure=True,
             samesite="lax",
-            max_age=rt_data.exp,
+            max_age=expires_in,
+            # domain=config.auth.DOMAIN,
         )
 
         return succeed(result)

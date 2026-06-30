@@ -8,7 +8,7 @@ from .workout import router as workout_router
 from .me import router as me_router
 
 router = APIRouter(
-    prefix="",
+    prefix="/api",
     dependencies=[Depends(UseAuthentication())],
 )
 

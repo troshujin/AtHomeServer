@@ -27,4 +27,4 @@ install-setup-certs:
 	@echo Generating local SSL certificates...
 	mkcert -install
 	@if not exist deploy\certs mkdir deploy\certs
-	mkcert -cert-file deploy/certs/localhost.pem -key-file deploy/certs/localhost-key.pem localhost
+	mkcert -cert-file deploy/certs/localhost.pem -key-file deploy/certs/localhost-key.pem localhost "*.localhost" myapp.localhost

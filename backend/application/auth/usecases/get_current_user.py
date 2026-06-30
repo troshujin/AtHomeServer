@@ -1,5 +1,4 @@
 from pydantic import ValidationError
-import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 from fastapi import Depends
@@ -34,14 +33,7 @@ class GetCurrentUserUseCase:
         if not user_session:
             return fail(NotFoundException())
 
-        dto = UserProxyDto(
-            id="str",
-            username="str",
-            email="str",
-            first_name="str",
-            created_on=datetime.datetime(2026, 7, 29, 5, 14, 3),
-            is_default=True,
-            has_password=True,
-        )
+        if not user_session.profile:
+            return fail(CustomException("Stored session is corrupt"))
 
-        return succeed(dto)
+        return succeed(user_session.profile)

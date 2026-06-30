@@ -39,10 +39,11 @@ def get_env_config(env_class: type[T]) -> T:
 
 
 class AuthConfig:
-    CLIENT_ID: str = "my_very_cool_client_id"
-    FRONTEND_URL: str = "https://localhost"
+    CLIENT_ID: str = "athomeserver"
+    FRONTEND_URL: str = "https://myapp.localhost"
     BACK_PATH: str = ""
-    CURRENT_URL: str = "https://localhost/api"
+    DOMAIN: str = "myapp.localhost"
+    CURRENT_URL: str = "https://myapp.localhost/api"
     LOGIN_BASE_URL: str = "http://localhost:5173"
     LOGIN_API_URL: str = "https://host.docker.internal:44363"
     NETWORK_ID: str = "019e21b8-1b5b-7a58-9a0b-b98b4ded1bd9"
