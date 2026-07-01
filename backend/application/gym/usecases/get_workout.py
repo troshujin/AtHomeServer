@@ -1,18 +1,19 @@
-from sqlalchemy import Select
-from sqlalchemy.ext.asyncio import AsyncSession
+import uuid
 from typing import Annotated
+
 from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from application.auth.services.identity import IdentityService
-from application.gym.dto import FetchWorkoutFilters, WorkoutDto
+from application.gym.dto import WorkoutDto
 from core.common.result import Result, fail, succeed
 from core.exceptions.base import CustomException
-from infrastructure.database.models import Workout
+from core.exceptions.standard import NotFoundException
 from infrastructure.database.repositories.workout import WorkoutRepository
 from infrastructure.database.session import get_db_session
 
 
-class GetWorkoutsUseCase:
+class GetWorkoutUseCase:
     def __init__(
         self,
         identity_service: Annotated[IdentityService, Depends()],
@@ -21,13 +22,7 @@ class GetWorkoutsUseCase:
         self.identity_service: IdentityService = identity_service
         self.repo: WorkoutRepository = WorkoutRepository(session=session)
 
-    def build_query_modifier(self, _: FetchWorkoutFilters, user_id: str):
-        def modifier(query: Select[tuple[Workout]]) -> Select[tuple[Workout]]:
-            return query.where(Workout.user_id == user_id)
-
-        return modifier
-
-    async def __call__(self, filters: FetchWorkoutFilters) -> Result[list[WorkoutDto]]:
+    async def __call__(self, workout_id: uuid.UUID) -> Result[WorkoutDto]:
         user_session = await self.identity_service.get_current_user_session()
 
         if not user_session or not user_session.profile:
@@ -35,9 +30,9 @@ class GetWorkoutsUseCase:
 
         user = user_session.profile
 
-        modifier = self.build_query_modifier(filters, user.id)
-        workouts = await self.repo.get(modifier=modifier)
+        workout = await self.repo.get_by_id(workout_id)
 
-        workouts_dtos = [WorkoutDto.model_validate(workout) for workout in workouts]
+        if not workout or str(workout.user_id) != user.id:
+            return fail(NotFoundException("Workout not found."))
 
-        return succeed(workouts_dtos)
+        return succeed(WorkoutDto.model_validate(workout))

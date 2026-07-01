@@ -2,6 +2,23 @@
 @use 'variables' as *;
 @use 'mixins' as *;
 
+// Shared design tokens as CSS custom properties, so plain (non-SCSS) component
+// styles can stay in sync with the SCSS palette without importing SCSS partials.
+:root {
+  --color-primary: #{$primary-color};
+  --color-primary-dark: #2f7fb8;
+  --color-accent: #6c5ce7;
+  --color-secondary: #{$secondary-color};
+  --color-text: #{$text-color};
+  --color-background: #{$background-color};
+  --surface-border: rgba(15, 23, 42, 0.07);
+  --surface-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --surface-shadow-lg: 0 24px 48px -16px rgba(15, 23, 42, 0.18);
+  --radius-lg: 1.25rem;
+  --radius-md: 0.9rem;
+  --radius-pill: 999px;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }

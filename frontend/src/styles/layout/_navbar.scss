@@ -1,95 +1,126 @@
 @use '../variables' as *;
 @use '../mixins' as *;
 
+.app-header {
+  --header-bg: rgba(255, 255, 255, 0.7);
+  --header-bg-scrolled: rgba(255, 255, 255, 0.86);
+  --header-border: rgba(15, 23, 42, 0.06);
+  --header-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+  --header-shadow-scrolled: 0 12px 28px -12px rgba(15, 23, 42, 0.22);
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding-top: env(safe-area-inset-top);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  box-shadow: var(--header-shadow);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+
+  &.is-scrolled {
+    background: var(--header-bg-scrolled);
+    box-shadow: var(--header-shadow-scrolled);
+  }
+}
+
 .navbar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
-  background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  height: 4rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
 
-  .container-fluid {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+  @include respond-to('small') {
+    padding: 0 1rem;
+    height: 3.75rem;
   }
 }
 
 .navbar-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: $primary-color;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: $secondary-color;
   text-decoration: none;
   cursor: pointer;
 
   &:hover {
-    opacity: 0.8;
     text-decoration: none;
+    .brand-mark { transform: translateY(-1px); }
   }
 }
 
-.navbar-toggler {
-  display: none; // Hidden on desktop
-  background: none;
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-  cursor: pointer;
-  border-radius: 4px;
-
-  @include respond-to('medium') {
-    display: block;
-  }
-}
-
-.navbar-collapse {
+.brand-mark {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.7rem;
+  background: linear-gradient(135deg, $primary-color, #6c5ce7);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  box-shadow: 0 6px 16px -4px rgba(52, 152, 219, 0.45);
+  transition: transform 0.2s ease;
+}
 
-  @include respond-to('medium') {
-    display: none; // You would toggle this with JS in a real app, or use Vue state
-    width: 100%;
-    flex-direction: column;
-    align-items: flex-start;
-    padding-top: 1rem;
-    
-    &.show {
-      display: flex;
-    }
+.brand-name {
+  font-size: 1.05rem;
+  white-space: nowrap;
+
+  @media (max-width: 420px) {
+    display: none;
   }
 }
 
-.navbar-nav {
+.navbar-links {
   display: flex;
+  align-items: center;
+  gap: 0.15rem;
   list-style: none;
   margin: 0;
-  padding: 0;
-  gap: 1.5rem;
+  padding: 0.3rem;
+  background: rgba(15, 23, 42, 0.045);
+  border-radius: 999px;
 
   @include respond-to('medium') {
-    flex-direction: column;
-    width: 100%;
-    gap: 0.5rem;
+    display: none;
   }
-}
-
-.nav-item {
-  // Item specific styles if needed
 }
 
 .nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.88rem;
   color: $text-color;
-  font-weight: 500;
   text-decoration: none;
-  transition: color 0.2s ease-in-out;
   cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 
-  &:hover, &.active {
+  &:hover {
     color: $primary-color;
     text-decoration: none;
+  }
+
+  &.is-active {
+    color: $secondary-color;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
   }
 
   &.disabled {
@@ -97,9 +128,212 @@
     pointer-events: none;
     cursor: not-allowed;
   }
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.auth-inline {
+  display: flex;
+  align-items: center;
 
   @include respond-to('medium') {
-    display: block;
-    padding: 0.5rem 0;
+    display: none;
+  }
+}
+
+.btn-login {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.35rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, $primary-color, #2f7fb8);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 8px 20px -6px rgba(52, 152, 219, 0.55);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+
+  &:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px -6px rgba(52, 152, 219, 0.65);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &--block {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.3rem 0.9rem 0.3rem 0.3rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
+  color: $secondary-color;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: rgba(15, 23, 42, 0.09);
+    text-decoration: none;
+  }
+
+  &--block {
+    width: 100%;
+    padding: 0.4rem 1rem 0.4rem 0.4rem;
+  }
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.95rem;
+  height: 1.95rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c5ce7, $primary-color);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.user-name {
+  font-size: 0.87rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.05);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: rgba(15, 23, 42, 0.09);
+  }
+
+  @include respond-to('medium') {
+    display: flex;
+  }
+}
+
+.menu-toggle-bar {
+  width: 1.15rem;
+  height: 2px;
+  border-radius: 2px;
+  background: $secondary-color;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.is-open .menu-toggle-bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.is-open .menu-toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.is-open .menu-toggle-bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+.mobile-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 1rem;
+  right: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 1.1rem;
+  box-shadow: 0 24px 48px -16px rgba(15, 23, 42, 0.28);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.mobile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mobile-link {
+  display: block;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: $secondary-color;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: rgba(52, 152, 219, 0.08);
+    text-decoration: none;
+  }
+
+  &.is-active {
+    color: $primary-color;
+    background: rgba(52, 152, 219, 0.1);
+  }
+}
+
+.mobile-actions {
+  margin-top: 0.6rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-header,
+  .brand-mark,
+  .nav-link,
+  .btn-login,
+  .user-chip,
+  .menu-toggle,
+  .menu-toggle-bar,
+  .mobile-link,
+  .dropdown-enter-active,
+  .dropdown-leave-active {
+    transition: none !important;
   }
 }

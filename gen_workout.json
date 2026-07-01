@@ -2,428 +2,186 @@
   "name": "Workout Wednesday",
   "exercises": [
     {
-      "name": "Leg Press",
+      "name": "Incline Press",
       "sets": [
         {
           "reps": [
             {
-              "weight": 92.5,
-              "amount": 15
+              "weight": 35.0,
+              "amount": 6
             },
             {
-              "weight": 90.0,
-              "amount": 15
+              "weight": 35,
+              "amount": 6
             },
             {
-              "weight": 87.5,
-              "amount": 10
+              "weight": 35,
+              "amount": 6
             },
             {
-              "weight": 85.0,
-              "amount": 10
-            },
-            {
-              "weight": 82.5,
-              "amount": 9
-            },
-            {
-              "weight": 80.0,
-              "amount": 9
-            },
-            {
-              "weight": 80,
-              "amount": 11
-            },
-            {
-              "weight": 80,
-              "amount": 10
-            }
-          ]
-        },
-        {
-          "reps": [
-            {
-              "weight": 195.0,
+              "weight": 35,
               "amount": 8
             },
             {
-              "weight": 192.5,
+              "weight": 35,
               "amount": 12
             },
             {
-              "weight": 190.0,
-              "amount": 11
-            },
-            {
-              "weight": 187.5,
-              "amount": 14
-            },
-            {
-              "weight": 185.0,
-              "amount": 15
-            },
-            {
-              "weight": 182.5,
-              "amount": 10
-            },
-            {
-              "weight": 180.0,
-              "amount": 9
-            }
-          ]
-        },
-        {
-          "reps": [
-            {
-              "weight": 197.5,
-              "amount": 9
-            },
-            {
-              "weight": 195.0,
-              "amount": 10
-            },
-            {
-              "weight": 192.5,
-              "amount": 12
-            },
-            {
-              "weight": 190.0,
-              "amount": 11
-            },
-            {
-              "weight": 187.5,
-              "amount": 9
-            },
-            {
-              "weight": 185.0,
-              "amount": 13
-            },
-            {
-              "weight": 182.5,
-              "amount": 14
-            },
-            {
-              "weight": 180.0,
-              "amount": 10
-            }
-          ]
-        },
-        {
-          "reps": [
-            {
-              "weight": 97.5,
-              "amount": 12
-            },
-            {
-              "weight": 95.0,
-              "amount": 15
-            },
-            {
-              "weight": 92.5,
-              "amount": 14
-            },
-            {
-              "weight": 90.0,
-              "amount": 13
-            },
-            {
-              "weight": 87.5,
-              "amount": 13
-            },
-            {
-              "weight": 85.0,
-              "amount": 11
-            },
-            {
-              "weight": 82.5,
-              "amount": 11
-            },
-            {
-              "weight": 80.0,
-              "amount": 15
-            }
-          ]
-        }
-      ],
-      "startedAt": "2026-06-24T21:09:59.000Z",
-      "endedAt": "2026-06-24T21:20:59.000Z"
-    },
-    {
-      "name": "Cable Fly",
-      "sets": [
-        {
-          "reps": [
-            {
-              "weight": 25.0,
-              "amount": 11
-            },
-            {
-              "weight": 22.5,
-              "amount": 12
-            },
-            {
-              "weight": 20.0,
-              "amount": 15
-            },
-            {
-              "weight": 17.5,
-              "amount": 15
-            },
-            {
-              "weight": 15.0,
-              "amount": 14
-            },
-            {
-              "weight": 12.5,
-              "amount": 12
-            },
-            {
-              "weight": 10.0,
-              "amount": 13
-            },
-            {
-              "weight": 10,
-              "amount": 12
-            }
-          ]
-        },
-        {
-          "reps": [
-            {
-              "weight": 30.0,
-              "amount": 10
-            },
-            {
-              "weight": 27.5,
-              "amount": 10
-            },
-            {
-              "weight": 25.0,
-              "amount": 12
-            },
-            {
-              "weight": 22.5,
-              "amount": 10
-            },
-            {
-              "weight": 20.0,
-              "amount": 14
-            }
-          ]
-        },
-        {
-          "reps": [
-            {
-              "weight": 20.0,
-              "amount": 11
-            },
-            {
-              "weight": 17.5,
-              "amount": 13
-            },
-            {
-              "weight": 15.0,
-              "amount": 10
-            },
-            {
-              "weight": 12.5,
-              "amount": 13
-            },
-            {
-              "weight": 10.0,
-              "amount": 10
-            },
-            {
-              "weight": 10,
-              "amount": 13
-            },
-            {
-              "weight": 10,
-              "amount": 15
-            },
-            {
-              "weight": 10,
-              "amount": 10
-            }
-          ]
-        }
-      ],
-      "startedAt": "2026-06-24T21:22:59.000Z",
-      "endedAt": "2026-06-24T21:32:59.000Z"
-    },
-    {
-      "name": "Deadlift",
-      "sets": [
-        {
-          "reps": [
-            {
-              "weight": 120.0,
-              "amount": 5
-            },
-            {
-              "weight": 117.5,
-              "amount": 7
-            },
-            {
-              "weight": 115.0,
-              "amount": 4
-            },
-            {
-              "weight": 112.5,
-              "amount": 4
-            },
-            {
-              "weight": 110.0,
-              "amount": 5
-            }
-          ]
-        },
-        {
-          "reps": [
-            {
-              "weight": 107.5,
-              "amount": 3
-            },
-            {
-              "weight": 105.0,
-              "amount": 5
-            },
-            {
-              "weight": 102.5,
-              "amount": 3
-            },
-            {
-              "weight": 100.0,
-              "amount": 4
-            },
-            {
-              "weight": 97.5,
-              "amount": 3
-            },
-            {
-              "weight": 95.0,
-              "amount": 5
-            }
-          ]
-        },
-        {
-          "reps": [
-            {
-              "weight": 132.5,
-              "amount": 7
-            },
-            {
-              "weight": 130.0,
-              "amount": 5
-            },
-            {
-              "weight": 127.5,
-              "amount": 3
-            },
-            {
-              "weight": 125.0,
-              "amount": 3
-            },
-            {
-              "weight": 122.5,
-              "amount": 3
-            },
-            {
-              "weight": 120.0,
-              "amount": 5
-            }
-          ]
-        },
-        {
-          "reps": [
-            {
-              "weight": 122.5,
-              "amount": 4
-            },
-            {
-              "weight": 120.0,
-              "amount": 7
-            },
-            {
-              "weight": 117.5,
-              "amount": 3
-            },
-            {
-              "weight": 115.0,
+              "weight": 35,
               "amount": 8
+            }
+          ]
+        },
+        {
+          "reps": [
+            {
+              "weight": 35.0,
+              "amount": 9
             },
             {
-              "weight": 112.5,
-              "amount": 4
+              "weight": 35,
+              "amount": 7
+            },
+            {
+              "weight": 35,
+              "amount": 12
+            },
+            {
+              "weight": 35,
+              "amount": 6
+            },
+            {
+              "weight": 35,
+              "amount": 9
+            },
+            {
+              "weight": 35,
+              "amount": 12
+            },
+            {
+              "weight": 35,
+              "amount": 12
+            },
+            {
+              "weight": 35,
+              "amount": 8
+            }
+          ]
+        },
+        {
+          "reps": [
+            {
+              "weight": 42.5,
+              "amount": 7
+            },
+            {
+              "weight": 40.0,
+              "amount": 7
+            },
+            {
+              "weight": 37.5,
+              "amount": 12
+            },
+            {
+              "weight": 35.0,
+              "amount": 12
+            },
+            {
+              "weight": 35,
+              "amount": 8
             }
           ]
         }
       ],
-      "startedAt": "2026-06-24T21:34:59.000Z",
-      "endedAt": "2026-06-24T21:43:59.000Z"
+      "startedAt": "2026-07-01T08:49:36.000Z",
+      "endedAt": "2026-07-01T09:00:36.000Z"
     },
     {
-      "name": "Lateral Raise",
+      "name": "Pull Up",
       "sets": [
         {
           "reps": [
             {
               "weight": 5.0,
-              "amount": 16
-            },
-            {
-              "weight": 5,
               "amount": 12
             },
             {
-              "weight": 5,
+              "weight": 2.5,
+              "amount": 10
+            },
+            {
+              "weight": 0.0,
+              "amount": 5
+            },
+            {
+              "weight": 0,
+              "amount": 5
+            },
+            {
+              "weight": 0,
               "amount": 12
-            },
-            {
-              "weight": 5,
-              "amount": 13
-            },
-            {
-              "weight": 5,
-              "amount": 12
-            },
-            {
-              "weight": 5,
-              "amount": 16
-            },
-            {
-              "weight": 5,
-              "amount": 19
-            },
-            {
-              "weight": 5,
-              "amount": 16
             }
           ]
         },
         {
           "reps": [
             {
-              "weight": 15.0,
-              "amount": 19
+              "weight": 5.0,
+              "amount": 12
             },
             {
-              "weight": 12.5,
-              "amount": 19
+              "weight": 2.5,
+              "amount": 4
             },
             {
-              "weight": 10.0,
-              "amount": 16
+              "weight": 0.0,
+              "amount": 11
             },
             {
-              "weight": 7.5,
-              "amount": 16
+              "weight": 0,
+              "amount": 12
+            }
+          ]
+        },
+        {
+          "reps": [
+            {
+              "weight": 0.0,
+              "amount": 9
+            },
+            {
+              "weight": 0,
+              "amount": 5
+            },
+            {
+              "weight": 0,
+              "amount": 12
+            },
+            {
+              "weight": 0,
+              "amount": 11
+            },
+            {
+              "weight": 0,
+              "amount": 6
+            },
+            {
+              "weight": 0,
+              "amount": 5
+            },
+            {
+              "weight": 0,
+              "amount": 6
+            },
+            {
+              "weight": 0,
+              "amount": 7
             }
           ]
         }
       ],
-      "startedAt": "2026-06-24T21:44:59.000Z",
-      "endedAt": "2026-06-24T21:49:59.000Z"
+      "startedAt": "2026-07-01T09:01:36.000Z",
+      "endedAt": "2026-07-01T09:12:36.000Z"
     },
     {
       "name": "Dumbbell Curl",
@@ -432,202 +190,234 @@
           "reps": [
             {
               "weight": 15.0,
+              "amount": 12
+            },
+            {
+              "weight": 12.5,
+              "amount": 8
+            },
+            {
+              "weight": 10.0,
+              "amount": 11
+            },
+            {
+              "weight": 10,
+              "amount": 11
+            },
+            {
+              "weight": 10,
+              "amount": 10
+            },
+            {
+              "weight": 10,
+              "amount": 11
+            }
+          ]
+        },
+        {
+          "reps": [
+            {
+              "weight": 15.0,
               "amount": 8
             },
             {
               "weight": 12.5,
-              "amount": 13
+              "amount": 12
             },
             {
               "weight": 10.0,
-              "amount": 12
-            },
-            {
-              "weight": 10,
-              "amount": 15
-            },
-            {
-              "weight": 10,
-              "amount": 9
-            },
-            {
-              "weight": 10,
-              "amount": 11
-            },
-            {
-              "weight": 10,
-              "amount": 9
-            }
-          ]
-        },
-        {
-          "reps": [
-            {
-              "weight": 25.0,
-              "amount": 9
-            },
-            {
-              "weight": 22.5,
-              "amount": 12
-            },
-            {
-              "weight": 20.0,
-              "amount": 9
-            },
-            {
-              "weight": 17.5,
-              "amount": 11
-            },
-            {
-              "weight": 15.0,
-              "amount": 11
-            },
-            {
-              "weight": 12.5,
-              "amount": 15
-            }
-          ]
-        },
-        {
-          "reps": [
-            {
-              "weight": 27.5,
-              "amount": 11
-            },
-            {
-              "weight": 25.0,
-              "amount": 14
-            },
-            {
-              "weight": 22.5,
               "amount": 10
             },
             {
-              "weight": 20.0,
-              "amount": 15
-            },
-            {
-              "weight": 17.5,
+              "weight": 10,
               "amount": 9
             },
             {
-              "weight": 15.0,
+              "weight": 10,
+              "amount": 10
+            },
+            {
+              "weight": 10,
+              "amount": 14
+            },
+            {
+              "weight": 10,
+              "amount": 8
+            },
+            {
+              "weight": 10,
+              "amount": 12
+            }
+          ]
+        },
+        {
+          "reps": [
+            {
+              "weight": 10.0,
               "amount": 13
             },
             {
-              "weight": 12.5,
+              "weight": 10,
+              "amount": 14
+            },
+            {
+              "weight": 10,
               "amount": 13
+            },
+            {
+              "weight": 10,
+              "amount": 13
+            },
+            {
+              "weight": 10,
+              "amount": 9
+            },
+            {
+              "weight": 10,
+              "amount": 9
+            },
+            {
+              "weight": 10,
+              "amount": 13
+            }
+          ]
+        },
+        {
+          "reps": [
+            {
+              "weight": 30.0,
+              "amount": 8
+            },
+            {
+              "weight": 27.5,
+              "amount": 8
+            },
+            {
+              "weight": 25.0,
+              "amount": 11
+            },
+            {
+              "weight": 22.5,
+              "amount": 9
+            },
+            {
+              "weight": 20.0,
+              "amount": 10
+            },
+            {
+              "weight": 17.5,
+              "amount": 11
+            },
+            {
+              "weight": 15.0,
+              "amount": 11
             }
           ]
         }
       ],
-      "startedAt": "2026-06-24T21:50:59.000Z",
-      "endedAt": "2026-06-24T21:57:59.000Z"
+      "startedAt": "2026-07-01T09:14:36.000Z",
+      "endedAt": "2026-07-01T09:28:36.000Z"
     },
     {
-      "name": "Romanian Deadlift",
+      "name": "Face Pull",
       "sets": [
         {
           "reps": [
             {
-              "weight": 62.5,
-              "amount": 11
+              "weight": 25.0,
+              "amount": 17
             },
             {
-              "weight": 60.0,
-              "amount": 7
+              "weight": 22.5,
+              "amount": 15
             },
             {
-              "weight": 57.5,
-              "amount": 8
+              "weight": 20.0,
+              "amount": 15
             },
             {
-              "weight": 55.0,
-              "amount": 6
+              "weight": 17.5,
+              "amount": 14
             },
             {
-              "weight": 52.5,
-              "amount": 8
+              "weight": 15.0,
+              "amount": 20
             },
             {
-              "weight": 50.0,
-              "amount": 7
+              "weight": 15,
+              "amount": 16
             },
             {
-              "weight": 50,
-              "amount": 10
-            },
-            {
-              "weight": 50,
-              "amount": 6
+              "weight": 15,
+              "amount": 15
             }
           ]
         },
         {
           "reps": [
             {
-              "weight": 105.0,
+              "weight": 20.0,
               "amount": 12
             },
             {
-              "weight": 102.5,
-              "amount": 11
+              "weight": 17.5,
+              "amount": 14
             },
             {
-              "weight": 100.0,
-              "amount": 9
+              "weight": 15.0,
+              "amount": 18
             },
             {
-              "weight": 97.5,
-              "amount": 10
+              "weight": 15,
+              "amount": 18
             },
             {
-              "weight": 95.0,
-              "amount": 12
+              "weight": 15,
+              "amount": 19
             },
             {
-              "weight": 92.5,
-              "amount": 9
-            },
-            {
-              "weight": 90.0,
-              "amount": 11
+              "weight": 15,
+              "amount": 18
             }
           ]
         },
         {
           "reps": [
             {
-              "weight": 110.0,
-              "amount": 12
+              "weight": 20.0,
+              "amount": 15
             },
             {
-              "weight": 107.5,
-              "amount": 12
+              "weight": 17.5,
+              "amount": 19
             },
             {
-              "weight": 105.0,
-              "amount": 7
+              "weight": 15.0,
+              "amount": 15
             },
             {
-              "weight": 102.5,
-              "amount": 11
+              "weight": 15,
+              "amount": 20
             },
             {
-              "weight": 100.0,
-              "amount": 11
+              "weight": 15,
+              "amount": 15
             },
             {
-              "weight": 97.5,
-              "amount": 11
+              "weight": 15,
+              "amount": 19
+            },
+            {
+              "weight": 15,
+              "amount": 13
             }
           ]
         }
       ],
-      "startedAt": "2026-06-24T22:00:59.000Z",
-      "endedAt": "2026-06-24T22:13:59.000Z"
+      "startedAt": "2026-07-01T09:31:36.000Z",
+      "endedAt": "2026-07-01T09:41:36.000Z"
     }
   ],
-  "startedAt": "2026-06-24T21:09:59.000Z",
-  "endedAt": "2026-06-24T22:15:59.000Z"
+  "startedAt": "2026-07-01T08:49:36.000Z",
+  "endedAt": "2026-07-01T09:43:36.000Z"
 }

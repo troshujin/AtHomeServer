@@ -21,7 +21,9 @@ class Workout(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id"))
     user: Mapped[User] = relationship(back_populates="workouts", lazy="selectin")
     
-    exercises: Mapped[list["WorkoutExercise"]] = relationship(back_populates="workout", lazy="selectin")
+    exercises: Mapped[list["WorkoutExercise"]] = relationship(
+        back_populates="workout", lazy="selectin", cascade="all, delete-orphan"
+    )
 
 
 class WorkoutExercise(Base):
@@ -34,7 +36,9 @@ class WorkoutExercise(Base):
     workout_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("workout.id"))
     workout: Mapped["Workout"] = relationship(back_populates="exercises")
 
-    sets: Mapped[list["WorkoutSet"]] = relationship(back_populates="exercise", lazy="selectin")
+    sets: Mapped[list["WorkoutSet"]] = relationship(
+        back_populates="exercise", lazy="selectin", cascade="all, delete-orphan"
+    )
 
 
 class WorkoutSet(Base):
@@ -43,7 +47,9 @@ class WorkoutSet(Base):
     exercise_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("workout_exercise.id"))
     exercise: Mapped["WorkoutExercise"] = relationship(back_populates="sets")
 
-    reps: Mapped[list["WorkoutRep"]] = relationship(back_populates="set", lazy="selectin")
+    reps: Mapped[list["WorkoutRep"]] = relationship(
+        back_populates="set", lazy="selectin", cascade="all, delete-orphan"
+    )
 
 
 class WorkoutRep(Base):

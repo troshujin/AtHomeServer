@@ -3,6 +3,7 @@ Base repository to contain CRUD logic
 """
 
 from typing import TypeVar, Generic
+import uuid
 from collections.abc import Sequence, Callable
 from sqlalchemy import select, update, delete, Select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,7 +35,7 @@ class BaseRepository(Generic[Model]):
         result = await self.session.execute(query)
         return result.scalars().all()
 
-    async def get_by_id(self, model_id: int) -> Model | None:
+    async def get_by_id(self, model_id: uuid.UUID) -> Model | None:
         query = select(self.model).where(self.model.id == model_id)
         query = self.query_options(query)
         result = await self.session.execute(query)
@@ -54,7 +55,7 @@ class BaseRepository(Generic[Model]):
 
     async def update_by_id(
         self,
-        model_id: int,
+        model_id: uuid.UUID,
         params: dict[str, object],
     ) -> None:
         query = update(self.model).where(self.model.id == model_id).values(**params)
@@ -70,8 +71,12 @@ class BaseRepository(Generic[Model]):
 
     async def delete_by_id(
         self,
-        model_id: int,
+        model_id: uuid.UUID,
     ) -> None:
         query = delete(self.model).where(self.model.id == model_id)
         _ = await self.session.execute(query)
+        await self.session.commit()
+
+    async def delete(self, model: Model) -> None:
+        await self.session.delete(model)
         await self.session.commit()

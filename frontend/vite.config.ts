@@ -15,13 +15,13 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 8080,
-    allowedHosts: ['app.localhost', 'localhost'],
+    allowedHosts: ['myapp.localhost', 'localhost:8080'],
     watch: {
       usePolling: true,
     },
 
-    hmr: {
-      clientPort: 443,
-    },
+    // hmr: {
+    //   clientPort: 443,
+    // },
   },
 });

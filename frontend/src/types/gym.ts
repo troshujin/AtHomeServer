@@ -1,6 +1,7 @@
 import type { BaseEntity } from "./base";
 
 export interface Workout extends BaseEntity {
+  name: string;
   exercises: WorkoutExercise[];
   startedAt: Date;
   endedAt: Date;
@@ -23,6 +24,7 @@ export interface WorkoutRep extends BaseEntity {
 }
 
 export interface MutateWorkout {
+  name: string;
   exercises: MutateWorkoutExercise[];
   startedAt: Date;
   endedAt: Date;
