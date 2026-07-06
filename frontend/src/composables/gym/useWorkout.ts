@@ -1,7 +1,7 @@
 import type { Workout as T, MutateWorkout as M } from '@/types/gym';
 import { useCachedApi, useMutation } from '../api/useCacheApi';
 import { hydrateWorkout } from './mocks/hydrate';
-import { mockMyWorkouts } from './mocks/workouts.mock';
+import { addMyWorkout, findMyWorkoutById, getMyWorkouts, removeMyWorkout, replaceMyWorkout } from './mocks/workouts.mock';
 import { mockDelay, toMockResponse } from './utils/useMockApi';
 
 const buildKey = (entryId?: string) => {
@@ -14,9 +14,13 @@ const buildKey = (entryId?: string) => {
  * from the frontend dev server again. Scoped to "my" workouts only, mirroring
  * the real endpoint (it's always scoped to the authenticated user). Swapping
  * this back to `useApiClient` calls is the only thing needed to go live.
+ *
+ * Reads/writes go through mocks/workouts.mock.ts's shared store rather than
+ * a private copy here, so a workout created via this composable is
+ * immediately visible to useWorkoutDetail.ts too (which resolves *any*
+ * workout by id, e.g. right after this composable's create redirects to
+ * its detail page).
  */
-let mockWorkouts: T[] = [...mockMyWorkouts];
-
 export default function useWorkouts() {
   type GetList = [];
   type GetSingle = [...GetList, workoutId: string];
@@ -27,7 +31,7 @@ export default function useWorkouts() {
     () => buildKey(),
     async () => {
       await mockDelay();
-      return toMockResponse([...mockWorkouts]);
+      return toMockResponse([...getMyWorkouts()]);
     },
   );
 
@@ -35,7 +39,7 @@ export default function useWorkouts() {
     (workoutId) => buildKey(workoutId),
     async (workoutId) => {
       await mockDelay();
-      const workout = mockWorkouts.find((item) => item.id === workoutId);
+      const workout = findMyWorkoutById(workoutId);
       if (!workout) throw new Error(`Workout "${workoutId}" was not found.`);
       return toMockResponse(workout);
     },
@@ -45,7 +49,7 @@ export default function useWorkouts() {
     async (payload) => {
       await mockDelay();
       const created = hydrateWorkout(payload);
-      mockWorkouts = [created, ...mockWorkouts];
+      addMyWorkout(created);
       return toMockResponse(created);
     },
     {
@@ -58,11 +62,11 @@ export default function useWorkouts() {
   const updateWorkout = useMutation<T, Update>(
     async (workoutId, payload) => {
       await mockDelay();
-      const existing = mockWorkouts.find((item) => item.id === workoutId);
+      const existing = findMyWorkoutById(workoutId);
       if (!existing) throw new Error(`Workout "${workoutId}" was not found.`);
 
       const updated: T = { ...hydrateWorkout(payload), id: existing.id, createdAt: existing.createdAt };
-      mockWorkouts = mockWorkouts.map((item) => (item.id === workoutId ? updated : item));
+      replaceMyWorkout(workoutId, updated);
       return toMockResponse(updated);
     },
     {
@@ -76,7 +80,7 @@ export default function useWorkouts() {
   const deleteWorkout = useMutation<void, GetSingle, T>(
     async (workoutId) => {
       await mockDelay();
-      mockWorkouts = mockWorkouts.filter((item) => item.id !== workoutId);
+      removeMyWorkout(workoutId);
       return toMockResponse(undefined as unknown as void);
     },
     {

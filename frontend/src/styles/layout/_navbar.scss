@@ -2,26 +2,20 @@
 @use '../mixins' as *;
 
 .app-header {
-  --header-bg: rgba(255, 255, 255, 0.7);
-  --header-bg-scrolled: rgba(255, 255, 255, 0.86);
-  --header-border: rgba(15, 23, 42, 0.06);
-  --header-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
-  --header-shadow-scrolled: 0 12px 28px -12px rgba(15, 23, 42, 0.22);
-
   position: sticky;
   top: 0;
   z-index: 100;
   padding-top: env(safe-area-inset-top);
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--header-border);
-  box-shadow: var(--header-shadow);
+  background: var(--glass-bg);
+  border-bottom: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow);
   backdrop-filter: blur(18px) saturate(180%);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
   transition: background-color 0.25s ease, box-shadow 0.25s ease;
 
   &.is-scrolled {
-    background: var(--header-bg-scrolled);
-    box-shadow: var(--header-shadow-scrolled);
+    background: var(--glass-bg-scrolled);
+    box-shadow: var(--surface-shadow-lg);
   }
 }
 
@@ -50,7 +44,7 @@
   flex-shrink: 0;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: $secondary-color;
+  color: var(--color-secondary);
   text-decoration: none;
   cursor: pointer;
 
@@ -67,12 +61,12 @@
   width: 2.1rem;
   height: 2.1rem;
   border-radius: 0.7rem;
-  background: linear-gradient(135deg, $primary-color, #6c5ce7);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
   color: #fff;
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0;
-  box-shadow: 0 6px 16px -4px rgba(52, 152, 219, 0.45);
+  box-shadow: 0 6px 16px -4px rgba(var(--color-primary-rgb), 0.45);
   transition: transform 0.2s ease;
 }
 
@@ -92,7 +86,7 @@
   list-style: none;
   margin: 0;
   padding: 0.3rem;
-  background: rgba(15, 23, 42, 0.045);
+  background: var(--color-surface-alt);
   border-radius: 999px;
 
   @include respond-to('medium') {
@@ -107,20 +101,20 @@
   border-radius: 999px;
   font-weight: 600;
   font-size: 0.88rem;
-  color: $text-color;
+  color: var(--color-text);
   text-decoration: none;
   cursor: pointer;
   transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    color: $primary-color;
+    color: var(--color-primary);
     text-decoration: none;
   }
 
   &.is-active {
-    color: $secondary-color;
-    background: #fff;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+    color: var(--color-secondary);
+    background: var(--color-surface);
+    box-shadow: var(--surface-shadow);
   }
 
   &.disabled {
@@ -146,24 +140,33 @@
   }
 }
 
+.theme-switcher-slot {
+  // Desktop-only, same as .auth-inline: below this breakpoint, theme
+  // switching moves into the full-screen mobile menu's sticky footer
+  // instead (see .mobile-theme-button).
+  @include respond-to('medium') {
+    display: none;
+  }
+}
+
 .btn-login {
   display: inline-flex;
   align-items: center;
   padding: 0.6rem 1.35rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, $primary-color, #2f7fb8);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
   color: #fff;
   font-weight: 600;
   font-size: 0.85rem;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 8px 20px -6px rgba(52, 152, 219, 0.55);
+  box-shadow: 0 8px 20px -6px rgba(var(--color-primary-rgb), 0.55);
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 
   &:hover {
     text-decoration: none;
     transform: translateY(-1px);
-    box-shadow: 0 10px 24px -6px rgba(52, 152, 219, 0.65);
+    box-shadow: 0 10px 24px -6px rgba(var(--color-primary-rgb), 0.65);
   }
 
   &:active {
@@ -182,14 +185,14 @@
   gap: 0.55rem;
   padding: 0.3rem 0.9rem 0.3rem 0.3rem;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.05);
-  color: $secondary-color;
+  background: rgba(var(--overlay-rgb), 0.05);
+  color: var(--color-secondary);
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: rgba(15, 23, 42, 0.09);
+    background: rgba(var(--overlay-rgb), 0.09);
     text-decoration: none;
   }
 
@@ -207,7 +210,7 @@
   height: 1.95rem;
   flex-shrink: 0;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6c5ce7, $primary-color);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-primary));
   color: #fff;
   font-size: 0.72rem;
   font-weight: 700;
@@ -229,12 +232,12 @@
   height: 2.5rem;
   border: none;
   border-radius: 0.75rem;
-  background: rgba(15, 23, 42, 0.05);
+  background: rgba(var(--overlay-rgb), 0.05);
   cursor: pointer;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: rgba(15, 23, 42, 0.09);
+    background: rgba(var(--overlay-rgb), 0.09);
   }
 
   @include respond-to('medium') {
@@ -246,7 +249,7 @@
   width: 1.15rem;
   height: 2px;
   border-radius: 2px;
-  background: $secondary-color;
+  background: var(--color-secondary);
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
@@ -262,18 +265,35 @@
   transform: translateY(-6px) rotate(-45deg);
 }
 
+// Full-screen mobile nav. Sits right below the sticky header (padding-top
+// matches .navbar's own height exactly, at both its breakpoints) so the
+// header - and its now-an-X menu-toggle button - stays reachable on top of
+// it. `color-mix` against --color-surface plus a heavy blur is deliberately
+// stronger than the header's own glass: this panel needs to stay legible
+// over whatever's scrolled underneath (a screen full of vivid workout-card
+// gradients, for instance), not just hint at translucency.
 .mobile-menu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 1rem;
-  right: 1rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 1.1rem;
-  box-shadow: 0 24px 48px -16px rgba(15, 23, 42, 0.28);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(4rem + env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  backdrop-filter: blur(32px) saturate(160%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
+
+  @include respond-to('small') {
+    padding-top: calc(3.75rem + env(safe-area-inset-top));
+  }
+}
+
+.mobile-menu__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.75rem 1.25rem;
 }
 
 .mobile-links {
@@ -287,40 +307,94 @@
 
 .mobile-link {
   display: block;
-  padding: 0.8rem 0.9rem;
+  padding: 0.9rem 1rem;
   border-radius: 0.75rem;
   font-weight: 600;
-  font-size: 0.95rem;
-  color: $secondary-color;
+  font-size: 1.05rem;
+  color: var(--color-secondary);
   text-decoration: none;
   transition: background-color 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: rgba(52, 152, 219, 0.08);
+    background: rgba(var(--color-primary-rgb), 0.08);
     text-decoration: none;
   }
 
   &.is-active {
-    color: $primary-color;
-    background: rgba(52, 152, 219, 0.1);
+    color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.1);
   }
 }
 
-.mobile-actions {
-  margin-top: 0.6rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(15, 23, 42, 0.07);
+// Not `position: sticky` - the scroll area above is its own independent
+// scroll container (flex: 1 1 auto + overflow-y: auto), so a flex-shrink: 0
+// footer at the end of the column is already pinned below it for free.
+.mobile-menu__footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--surface-border);
 }
 
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: opacity 0.16s ease, transform 0.16s ease;
+.mobile-theme-button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: rgba(var(--overlay-rgb), 0.08);
+  }
 }
 
-.dropdown-enter-from,
-.dropdown-leave-to {
+.mobile-theme-button__icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.mobile-theme-button__label {
+  flex: 1;
+  text-align: left;
+}
+
+.mobile-theme-button__chevron {
+  opacity: 0.6;
+  font-size: 1.1rem;
+}
+
+.mobile-menu-enter-active,
+.mobile-menu-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.mobile-menu-enter-active .mobile-menu__scroll,
+.mobile-menu-enter-active .mobile-menu__footer,
+.mobile-menu-leave-active .mobile-menu__scroll,
+.mobile-menu-leave-active .mobile-menu__footer {
+  transition: transform 0.2s ease;
+}
+
+.mobile-menu-enter-from,
+.mobile-menu-leave-to {
   opacity: 0;
-  transform: translateY(-6px) scale(0.98);
+}
+
+.mobile-menu-enter-from .mobile-menu__scroll,
+.mobile-menu-enter-from .mobile-menu__footer,
+.mobile-menu-leave-to .mobile-menu__scroll,
+.mobile-menu-leave-to .mobile-menu__footer {
+  transform: translateY(10px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -332,8 +406,16 @@
   .menu-toggle,
   .menu-toggle-bar,
   .mobile-link,
-  .dropdown-enter-active,
-  .dropdown-leave-active {
+  .mobile-theme-button,
+  .mobile-menu-enter-active,
+  .mobile-menu-leave-active {
+    transition: none !important;
+  }
+
+  .mobile-menu-enter-active .mobile-menu__scroll,
+  .mobile-menu-enter-active .mobile-menu__footer,
+  .mobile-menu-leave-active .mobile-menu__scroll,
+  .mobile-menu-leave-active .mobile-menu__footer {
     transition: none !important;
   }
 }

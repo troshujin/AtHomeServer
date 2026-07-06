@@ -19,6 +19,32 @@ const router = createRouter({
         title: 'Gym',
       },
     },
+    {
+      path: '/gym/workouts/new',
+      name: 'gym-workout-new',
+      component: () => import('@/views/GymWorkoutForm.vue'),
+      meta: {
+        title: 'New workout',
+      },
+    },
+    {
+      path: '/gym/workouts/:id',
+      name: 'gym-workout-detail',
+      component: () => import('@/views/GymWorkoutDetail.vue'),
+      props: true,
+      meta: {
+        title: 'Workout',
+      },
+    },
+    {
+      path: '/gym/workouts/:id/edit',
+      name: 'gym-workout-edit',
+      component: () => import('@/views/GymWorkoutForm.vue'),
+      props: true,
+      meta: {
+        title: 'Edit workout',
+      },
+    },
   ],
 })
 

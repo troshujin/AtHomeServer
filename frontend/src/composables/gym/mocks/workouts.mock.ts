@@ -37,16 +37,49 @@ const toWorkouts = (person: MockPerson): Workout[] =>
     .map((key) => hydrateWorkout(toMutateWorkout(requireRawWorkout(key))))
     .sort(byMostRecent);
 
-const toLatestActivity = (person: MockPerson): GymActivityEntry => {
-  const [workout] = toWorkouts(person);
-  if (!workout) throw new Error(`Person "${person.user.username}" has no mock workouts.`);
-  return { user: person.user, workout };
+/** Every workout across a group of people, flattened into a single feed ordered by recency. */
+const toActivityFeed = (people: MockPerson[]): GymActivityEntry[] =>
+  people
+    .flatMap((person) => toWorkouts(person).map((workout) => ({ user: person.user, workout })))
+    .sort(byMostRecentActivity);
+
+export const mockFriendActivity: GymActivityEntry[] = toActivityFeed(mockFriends);
+
+export const mockPromotedActivity: GymActivityEntry[] = toActivityFeed(mockCommunityMembers);
+
+/**
+ * The current user's own workouts are the only ones that can change at
+ * runtime (create/update/delete), so they're the only ones kept as a live,
+ * mutable store here - a single shared source of truth read by both
+ * `useWorkout.ts` (the CRUD surface, scoped to "my workouts" the same way
+ * the real backend is) and `useWorkoutDetail.ts` (which needs to resolve
+ * *any* workout by id, including ones created seconds ago). Before this,
+ * each of those kept its own separate copy, so a just-created workout was
+ * invisible to the detail page it had just redirected to - the same class
+ * of bug as two caches of "the same" data drifting apart.
+ */
+let myWorkouts: Workout[] = toWorkouts(mockCurrentPerson);
+
+export const getMyWorkouts = (): Workout[] => myWorkouts;
+
+export const findMyWorkoutById = (workoutId: string): Workout | undefined =>
+  myWorkouts.find((workout) => workout.id === workoutId);
+
+export const addMyWorkout = (workout: Workout): void => {
+  myWorkouts = [workout, ...myWorkouts];
 };
 
-export const mockMyWorkouts: Workout[] = toWorkouts(mockCurrentPerson);
+export const replaceMyWorkout = (workoutId: string, workout: Workout): void => {
+  myWorkouts = myWorkouts.map((item) => (item.id === workoutId ? workout : item));
+};
 
-export const mockFriendActivity: GymActivityEntry[] = mockFriends.map(toLatestActivity).sort(byMostRecentActivity);
+export const removeMyWorkout = (workoutId: string): void => {
+  myWorkouts = myWorkouts.filter((item) => item.id !== workoutId);
+};
 
-export const mockPromotedActivity: GymActivityEntry[] = mockCommunityMembers
-  .map(toLatestActivity)
-  .sort(byMostRecentActivity);
+export const findActivityByWorkoutId = (workoutId: string): GymActivityEntry | undefined => {
+  const mine = findMyWorkoutById(workoutId);
+  if (mine) return { user: mockCurrentPerson.user, workout: mine };
+
+  return [...mockFriendActivity, ...mockPromotedActivity].find((entry) => entry.workout.id === workoutId);
+};

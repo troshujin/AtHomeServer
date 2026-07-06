@@ -2,10 +2,15 @@
   <SectionCard title="Friends">
     <template #actions>
       <AppButton size="sm">Manage friends</AppButton>
-      <AppButton size="sm">View All</AppButton>
+      <AppButton size="sm" to="/gym/friends">View All</AppButton>
     </template>
 
-    <WorkoutFeed :items="items" :loading="loading" empty-message="No friend activity yet." />
+    <WorkoutFeed
+      :items="items"
+      :loading="loading"
+      empty-message="No friend activity yet."
+      more-to="/gym/friends"
+    />
   </SectionCard>
 </template>
 

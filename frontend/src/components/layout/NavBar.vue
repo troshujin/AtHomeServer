@@ -27,6 +27,10 @@
           </RouterLink>
         </div>
 
+        <div class="theme-switcher-slot">
+          <ThemeSwitcher />
+        </div>
+
         <button
           class="menu-toggle"
           type="button"
@@ -42,17 +46,20 @@
       </div>
     </nav>
 
-    <Transition name="dropdown">
-      <div v-if="isMenuOpen" id="mobile-menu" class="mobile-menu">
-        <ul class="mobile-links">
-          <li v-for="link in navLinks" :key="link.to">
-            <RouterLink class="mobile-link" :to="link.to" active-class="is-active" @click="closeMenu">
-              {{ link.label }}
-            </RouterLink>
-          </li>
-        </ul>
+    <Teleport to="body">
+    <Transition name="mobile-menu">
+      <div v-if="isMenuOpen" id="mobile-menu" ref="mobileMenuRef" class="mobile-menu">
+        <div class="mobile-menu__scroll">
+          <ul class="mobile-links">
+            <li v-for="link in navLinks" :key="link.to">
+              <RouterLink class="mobile-link" :to="link.to" active-class="is-active" @click="closeMenu">
+                {{ link.label }}
+              </RouterLink>
+            </li>
+          </ul>
+        </div>
 
-        <div class="mobile-actions">
+        <div class="mobile-menu__footer">
           <a
             v-if="!authStore.currentUser"
             class="btn-login btn-login--block"
@@ -64,19 +71,29 @@
             <span class="user-avatar">{{ initials }}</span>
             <span class="user-name">{{ authStore.currentUser.username }}</span>
           </RouterLink>
+
+          <button class="mobile-theme-button" type="button" @click="openThemeMenu">
+            <span class="mobile-theme-button__icon" aria-hidden="true">{{ currentTheme.icon }}</span>
+            <span class="mobile-theme-button__label">Theme: {{ currentTheme.name }}</span>
+            <span class="mobile-theme-button__chevron" aria-hidden="true">&rsaquo;</span>
+          </button>
         </div>
       </div>
     </Transition>
+    </Teleport>
   </header>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import ThemeSwitcher from '@/components/common/ThemeSwitcher.vue';
 import { API_BASE_URL } from '@/lib/config';
 import { useAuthStore } from '@/stores/auth';
+import { getThemeDefinition, useThemeStore } from '@/stores/theme';
 
 const authStore = useAuthStore();
+const themeStore = useThemeStore();
 const route = useRoute();
 
 const navLinks = [
@@ -85,6 +102,11 @@ const navLinks = [
 ];
 
 const headerRef = ref<HTMLElement | null>(null);
+// The mobile menu is <Teleport>-ed to <body> (so its `position: fixed` isn't
+// contained by .app-header's own backdrop-filter, which would otherwise
+// make it fixed relative to the header's small box instead of the
+// viewport) - so it needs its own ref for the outside-click check below.
+const mobileMenuRef = ref<HTMLElement | null>(null);
 const isMenuOpen = ref(false);
 const isScrolled = ref(false);
 
@@ -92,6 +114,8 @@ const initials = computed(() => {
   const name = authStore.currentUser?.username ?? '';
   return name.slice(0, 2).toUpperCase();
 });
+
+const currentTheme = computed(() => getThemeDefinition(themeStore.theme));
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
@@ -101,13 +125,21 @@ const closeMenu = () => {
   isMenuOpen.value = false;
 };
 
+const openThemeMenu = () => {
+  closeMenu();
+  themeStore.openPicker();
+};
+
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 8;
 };
 
 const handleOutsideClick = (event: MouseEvent) => {
   if (!isMenuOpen.value) return;
-  if (headerRef.value && !headerRef.value.contains(event.target as Node)) {
+  const target = event.target as Node;
+  const isInsideHeader = headerRef.value?.contains(target) ?? false;
+  const isInsideMobileMenu = mobileMenuRef.value?.contains(target) ?? false;
+  if (!isInsideHeader && !isInsideMobileMenu) {
     closeMenu();
   }
 };

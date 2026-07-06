@@ -1,4 +1,4 @@
-.PHONY: run-backend run-frontend run-containers install-all install-env install-frontend install-backend install-setup-certs
+.PHONY: run-backend run-frontend run-containers run-preview install-all install-env install-frontend install-backend install-setup-certs
 
 run-backend:
 	cd backend && uv run uvicorn main:app --reload
@@ -8,6 +8,12 @@ run-frontend:
 
 run-containers:
 	docker compose up --build
+
+# Exposes the local frontend dev server (make run-frontend, port 8080) on a
+# public https://*.trycloudflare.com URL for previewing on a phone or sharing.
+# Needs run-frontend running in another terminal first.
+run-preview:
+	"C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://localhost:8081
 
 install-all: install-env install-setup-certs install-backend install-frontend
 	@echo Installation complete! Update your .env file, then run 'make run-containers'.
