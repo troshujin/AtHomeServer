@@ -95,6 +95,14 @@ input[type='time'] {
   opacity: 0.75;
 }
 
+// Small muted helper line under an input (e.g. "leave empty while you're
+// still lifting") - guidance, visually subordinate to the label above it.
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--color-text);
+  opacity: 0.6;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;

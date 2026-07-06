@@ -157,6 +157,16 @@ the two-implementations-drift-apart problem.
 
 ## 5. Component patterns
 
+**Componentize eagerly.** If a piece of UI has any realistic chance of being
+used twice — a back link, a page header, a badge, a stat row — make it a
+component in `common/` (or the feature's folder) the *first* time you build
+it, not after the third copy-paste has already drifted. Duplicated scoped
+CSS blocks across views are the smell to watch for: identical `__back`,
+`__header`, or badge styles in two files means a component should exist.
+The same goes for logic: shared formatting/sorting belongs in `lib/` or a
+composable, not re-derived per view. When you extract one, add it to this
+section so the next contributor finds it before reinventing it.
+
 ### `common/AppButton.vue`
 
 The one and only button component. Renders as `<RouterLink>`, `<a>`, or
@@ -206,6 +216,28 @@ props). Compose several of them to sketch a loading page's rough shape
 cheaper and more consistent than each screen hand-rolling its own shimmer
 CSS. `WorkoutFeed.vue`'s carousel skeleton predates this and still has its
 own inline version; a new loading state should use this component instead.
+
+### `common/PageShell.vue`, `common/PageHeader.vue`, `common/BackLink.vue`
+
+The page scaffolding trio — every routed view (except the status pages'
+centered layout) composes these instead of re-declaring the same scoped
+CSS:
+
+- `PageShell` — the centered, capped-width column with the app's page
+  padding and vertical rhythm. `max-width` prop is the only per-page knob
+  (`720px` default for forms/lists, `1000px` detail, `1200px` dashboard
+  grids).
+- `PageHeader` — `title` + optional `subtitle`, the standard list-page
+  heading.
+- `BackLink` — the "← Back to X" link at the top of every sub-page
+  (`to` prop, label via slot).
+
+### `common/BadgePill.vue`
+
+The small uppercase status pill ("You", "In progress"). `variant="primary"`
+for identity/ownership, `variant="accent"` for live state — two tints so
+two badges can sit side by side and still read as different kinds of
+information (see the workout detail byline).
 
 ### `common/UserBadge.vue`
 
@@ -282,6 +314,36 @@ collapses to one column) is meant to be reused, not reinvented.
 [§10](#10-forms) for the form-specific patterns these establish — the
 "helpful, not invasive" previous-sets hint
 in particular.
+
+### `gym/form/WorkoutMode.vue`
+
+The full-screen, one-thumb workout logger — entered from the mobile-only
+mode switcher at the bottom of `GymWorkoutForm.vue` (hidden above 640px;
+this is a phone-at-the-gym surface). Patterns it establishes:
+
+- **Same state, second interface.** It edits the *same* reactive
+  `WorkoutFormState` object as the normal form (passed by reference, shape
+  defined in `formState.ts`) — never a copy that syncs back on exit. That's
+  what makes "switch to the normal view to fix a mistake" free and lossless,
+  and it's the required shape for any future alternate editing surface.
+- **A stage machine, not routes.** Three stages (`naming` → `overview` →
+  `set`) as a local `ref`, since the whole thing is one modal experience the
+  router shouldn't know about. Enter submits the naming stage (a real
+  `<form @submit>`, `enterkeyhint="go"` for mobile keyboards).
+- **No moving parts.** Every region on the set stage has a fixed size (the
+  rep-chart row keeps its height whether empty or full; the undo button is
+  always rendered, merely disabled) so the hero button never shifts under a
+  mid-set thumb. The only motion is the chart's own horizontal scrolling.
+- Teleported to `<body>` like every full-screen fixed overlay (see NavBar),
+  solid `--color-background` (not glass — it's a workspace, not a sheet),
+  safe-area-inset padding, body scroll locked while open.
+- **One hero control per stage** (§7/§8): the giant circular "+1 rep"
+  button is the single oversized element on the set stage, with the rep
+  count as the hero number above it. Weight steppers snap to the 0.5 kg
+  grid (weights are floats — half-kg plates are real).
+- Name suggestions are opt-in chips that only fill the field
+  (`exerciseHistory.ts`, own history only) — same "helpful, not invasive"
+  rule as the previous-sets hint.
 
 ### `layout/NavBar.vue`
 
@@ -599,14 +661,27 @@ patterns it establishes:
 
 `input[type=text|number|datetime-local]` get their border/radius/focus-ring
 styling once, in `base.scss`, the same way `a`/`h1`–`h6` do — not scoped
-CSS repeated in every form component. `.form-field` (label+input stack)
-and `.form-label` are global for the same reason: several different
-components (`GymWorkoutForm.vue`'s own fields, `SetInputRow.vue`'s
-weight/reps) need to agree on the same shape, and scoped styles can't
-cross a component boundary. **If you add a new native input type to a
+CSS repeated in every form component. `.form-field` (label+input stack),
+`.form-label`, and `.form-hint` (a small muted helper line under an input,
+e.g. "leave empty while you're still lifting") are global for the same
+reason: several different components (`GymWorkoutForm.vue`'s own fields,
+`SetInputRow.vue`'s weight/reps) need to agree on the same shape, and
+scoped styles can't cross a component boundary. **If you add a new native input type to a
 form, add its base styling to this same global block** rather than
 styling it locally — that's what keeps every form looking like the same
 app instead of a patchwork.
+
+### Persist-first + autosave, not local drafts
+
+Creating a workout POSTs a blank in-progress record immediately
+(`useStartWorkout.ts`) and lands on its edit page; from there a deep watcher
+on the form state debounces (~2.5s after the last input) into a lenient PUT
+(`buildDraftPayload` — persists whatever is valid so far, never blocks on
+validation). The explicit Save button remains the strict, validated path.
+A small `role="status"` line next to the title reports
+pending/saving/saved/error. If a future form holds data a user would hate
+to lose (anything entered on a phone, mid-activity), copy this shape: no
+unsaved local draft should ever be more than a few seconds from the server.
 
 ### One shared component for create and edit
 
@@ -701,6 +776,13 @@ Before adding a new component or screen, confirm:
       gap.
 - [ ] Buttons use `AppButton`; containers use `SectionCard`, unless there's
       a documented reason not to (and if so, consider updating this guide).
+- [ ] Nothing was copy-pasted that should be a component ([§5](#5-component-patterns)'s
+      "componentize eagerly" rule): pages compose `PageShell`/`PageHeader`/
+      `BackLink`, badges are `BadgePill`, and shared formatting/sorting
+      comes from `lib/`/composables instead of being re-derived per view.
+- [ ] Internal navigation uses `to` (RouterLink), never `href` — `href` on
+      an `AppButton` is for genuinely external URLs only (a full page
+      reload throws away the SPA state, e.g. an in-flight autosave).
 - [ ] Touch targets are comfortably tappable (~40px+), and nothing essential
       requires `:hover` to discover or use.
 - [ ] If it's a card/feed meant to be engaging, it has a clear single hero

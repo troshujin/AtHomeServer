@@ -12,6 +12,10 @@ class EnvConfig(BaseSettings):
 
     DB_CONNECTION_STRING: str
     REDIS_URL: str
+    CURRENT_DOMAIN: str
+    LOGIN_BASE_URL: str
+    LOGIN_API_URL: str
+    NETWORK_ID: str
 
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         env_file=".env",
@@ -40,13 +44,15 @@ def get_env_config(env_class: type[T]) -> T:
 
 class AuthConfig:
     CLIENT_ID: str = "athomeserver"
-    FRONTEND_URL: str = "https://myapp.localhost"
+    FRONTEND_URL: str = "https://{domain}"
     BACK_PATH: str = ""
-    DOMAIN: str = "myapp.localhost"
-    CURRENT_URL: str = "https://myapp.localhost/api"
-    LOGIN_BASE_URL: str = "http://localhost:5173"
-    LOGIN_API_URL: str = "https://host.docker.internal:44363"
-    NETWORK_ID: str = "019e21b8-1b5b-7a58-9a0b-b98b4ded1bd9"
+    DOMAIN: str = "{domain}"
+    CURRENT_URL: str = "https://{domain}/api"
+    NETWORK_ID: str = "none"
+    # Filled from EnvConfig in init_auth - kept on auth so call sites
+    # (login.py, trojonetworks api_client.py) keep reading config.auth.*.
+    LOGIN_BASE_URL: str = ""
+    LOGIN_API_URL: str = ""
 
     LOGIN_EXPIRATION_SECONDS: int = 60 * 5
 
@@ -58,6 +64,15 @@ class Config:
     def __init__(self, env_config: EnvConfig) -> None:
         self.env = env_config
         self.auth = AuthConfig()
+        self.init_auth()
+
+    def init_auth(self):
+        self.auth.FRONTEND_URL = self.auth.FRONTEND_URL.format(domain=self.env.CURRENT_DOMAIN)
+        self.auth.DOMAIN = self.auth.DOMAIN.format(domain=self.env.CURRENT_DOMAIN)
+        self.auth.CURRENT_URL = self.auth.CURRENT_URL.format(domain=self.env.CURRENT_DOMAIN)
+        self.auth.NETWORK_ID = self.env.NETWORK_ID
+        self.auth.LOGIN_BASE_URL = self.env.LOGIN_BASE_URL
+        self.auth.LOGIN_API_URL = self.env.LOGIN_API_URL
 
 
 _env_config: EnvConfig = get_env_config(EnvConfig)

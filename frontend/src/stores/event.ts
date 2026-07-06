@@ -86,12 +86,6 @@ export const useEventStore = defineStore('event', () => {
 
         listeners.get(eventKey)!.add(finalCallback);
 
-        let totalEverywhere = 0;
-        for (const eventSet of listeners.values()) {
-          totalEverywhere += eventSet.size;
-        }
-        console.log(`Registering listener on ${eventKey}. Total of ${totalEverywhere}`);
-
         return unregister;
       };
     }

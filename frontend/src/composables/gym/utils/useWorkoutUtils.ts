@@ -1,6 +1,11 @@
-import type { Workout } from '@/types/gym';
+import type { Workout, WorkoutStatus } from '@/types/gym';
+
+/** Newest-first comparator - the backend returns workouts in arbitrary DB order. */
+export const byMostRecent = (a: Workout, b: Workout): number =>
+  b.startedAt.getTime() - a.startedAt.getTime();
 
 export function useWorkoutUtils(workout: Workout) {
+  const getStatus = (): WorkoutStatus => (workout.endedAt ? 'finished' : 'in-progress');
   const getVolume = (): number => {
     return workout.exercises.reduce((exerciseAcc, exercise) => {
       const exerciseVolume = exercise.sets.reduce((setAcc, set) => {
@@ -15,6 +20,7 @@ export function useWorkoutUtils(workout: Workout) {
 
   return {
     getVolume,
+    getStatus,
     workout,
   };
 }

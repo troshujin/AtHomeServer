@@ -19,7 +19,8 @@
       <div class="workout-card__meta">
         <span class="workout-card__volume">{{ formattedVolume }} kg lifted</span>
         <span class="workout-card__dot" aria-hidden="true">&middot;</span>
-        <span class="workout-card__date">{{ formatDateShort(workout.startedAt) }}</span>
+        <span v-if="isInProgress" class="workout-card__status">In progress</span>
+        <span v-else class="workout-card__date">{{ formatDateShort(workout.startedAt) }}</span>
       </div>
     </div>
   </article>
@@ -29,7 +30,7 @@
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useWorkoutUtils } from '@/composables/gym/utils/useWorkoutUtils';
-import { formatDateShort } from '@/lib/formatters';
+import { formatDateShort, formatKg } from '@/lib/formatters';
 import type { Workout } from '@/types/gym';
 import type { User } from '@/types/user';
 
@@ -40,7 +41,11 @@ const props = defineProps<{
 
 const workoutUtils = useWorkoutUtils(props.workout);
 
-const formattedVolume = computed(() => new Intl.NumberFormat('nl-NL').format(workoutUtils.getVolume()));
+const formattedVolume = computed(() => formatKg(workoutUtils.getVolume()));
+
+// An in-progress workout shows its status where the date would go - the
+// date is almost always "today" for a live workout anyway.
+const isInProgress = computed(() => workoutUtils.getStatus() === 'in-progress');
 
 const initials = computed(() => (props.user?.username.slice(0, 2).toUpperCase() ?? ''));
 
@@ -71,7 +76,9 @@ const hashString = (value: string): number => {
   return hash;
 };
 
-const theme = computed(() => CARD_THEMES[hashString(props.workout.id) % CARD_THEMES.length]);
+// The modulo keeps the index in range of the non-empty literal array, which
+// `noUncheckedIndexedAccess` can't see - hence the assertion.
+const theme = computed(() => CARD_THEMES[hashString(props.workout.id) % CARD_THEMES.length]!);
 
 const themeStyle = computed(() => ({
   '--card-from': theme.value[0],
@@ -157,6 +164,11 @@ const icon = computed(() => TYPE_ICONS[props.workout.name.trim().toLowerCase()] 
   font-size: 0.8rem;
   color: var(--color-text);
   opacity: 0.65;
+}
+
+.workout-card__status {
+  color: var(--color-primary);
+  font-weight: 700;
 }
 
 /*
@@ -261,6 +273,13 @@ const icon = computed(() => TYPE_ICONS[props.workout.name.trim().toLowerCase()] 
   .workout-card__date {
     font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* On the gradient card the theme's primary color can clash - the status
+     stays part of the card's own white-on-gradient scheme instead. */
+  .workout-card__status {
+    font-size: 0.75rem;
+    color: #fff;
   }
 }
 </style>

@@ -6,8 +6,9 @@ import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRoute, useRouter } from 'vue-router';
 
 const isValidDateString = (dateString: string): boolean => {
-  // ISO 8601 full date/time (e.g., "2023-08-08T12:34:56Z")
-  const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?$/;
+  // ISO 8601 full date/time. The backend serializes timezone-aware datetimes
+  // with a numeric offset ("2023-08-08T12:34:56+00:00"), not just "Z".
+  const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$/;
 
   if (!iso8601Regex.test(dateString)) return false;
 

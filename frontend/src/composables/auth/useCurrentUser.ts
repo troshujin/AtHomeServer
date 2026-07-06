@@ -1,6 +1,19 @@
 import { useCachedApi } from '../api/useCacheApi';
 import { useApiClient } from '../api/useApiClient';
-import type { User } from '@/types/user';
+import { formatUserName } from '@/lib/formatters';
+import type { CurrentUser, User } from '@/types/user';
+
+/**
+ * The displayable `User` for content owned by the `/me` identity - used
+ * wherever a byline/profile component expects the gym-side `User` shape
+ * (UserBadge, WorkoutCard) but the person is the current user.
+ */
+export const toDisplayUser = (me: CurrentUser): User => ({
+  id: me.id,
+  username: formatUserName(me),
+  createdAt: me.createdOn,
+  updatedAt: me.createdOn,
+});
 
 const buildKey = (entryId?: string) => {
   const base = `me`;
@@ -15,9 +28,9 @@ const buildUrl = (entryId?: string) => {
 export default function useCurrentUser() {
   const api = useApiClient();
 
-  const fetchMe = useCachedApi<User, []>(
+  const fetchMe = useCachedApi<CurrentUser, []>(
     () => buildKey(),
-    () => api.get<User>(buildUrl()),
+    () => api.get<CurrentUser>(buildUrl()),
   );
 
   return { fetchMe };

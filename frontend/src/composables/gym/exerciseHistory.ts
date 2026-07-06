@@ -1,19 +1,25 @@
-import type { WorkoutExercise } from '@/types/gym';
-import { getMyWorkouts } from './workouts.mock';
+import { globalCache } from '@/composables/api/useCacheApi';
+import type { Workout, WorkoutExercise } from '@/types/gym';
 
 /**
  * "Known exercises" and "what did I do last time" are scoped to the current
  * user's own history only - suggesting a friend's squat weight as if it
  * were yours would be actively unhelpful, not just irrelevant.
  *
- * Recomputed on every call rather than memoized: the underlying workouts
- * are a live, mutable store (see workouts.mock.ts), so a workout logged
- * earlier in the session needs to show up here too - e.g. typing the same
- * exercise name again later in the same visit. The mock dataset is tiny, so
- * there's no real cost to rebuilding this on each call.
+ * Reads the real `/workouts` list straight out of the shared cache (the
+ * `workouts` key useWorkout.ts's fetchWorkouts fills), so it stays in sync
+ * with creates/edits without owning any fetching itself. The form view
+ * warms that cache on mount; until it lands this just returns nothing,
+ * which callers already treat as "no suggestions".
+ *
+ * Recomputed on every call rather than memoized: a user's history is small,
+ * and the underlying cache entry can change under us at any time.
  */
-const buildHistory = (): Map<string, { name: string; lastPerformedAt: Date; exercise: WorkoutExercise }> => {
-  const history = new Map<string, { name: string; lastPerformedAt: Date; exercise: WorkoutExercise }>();
+const getMyWorkouts = (): Workout[] =>
+  (globalCache.get('workouts')?.data.value as Workout[] | null) ?? [];
+
+const buildHistory = (): Map<string, ExerciseHistoryEntry> => {
+  const history = new Map<string, ExerciseHistoryEntry>();
 
   for (const workout of getMyWorkouts()) {
     for (const exercise of workout.exercises) {

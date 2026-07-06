@@ -35,7 +35,7 @@ const hydrateExercise = (exercise: MutateWorkoutExercise): WorkoutExercise => ({
   startedAt: exercise.startedAt,
   endedAt: exercise.endedAt,
   createdAt: exercise.startedAt,
-  updatedAt: exercise.endedAt,
+  updatedAt: exercise.endedAt ?? exercise.startedAt,
   sets: exercise.sets.map((set) => hydrateSet(set, exercise.startedAt)),
 });
 
@@ -46,6 +46,6 @@ export const hydrateWorkout = (workout: MutateWorkout): Workout => ({
   startedAt: workout.startedAt,
   endedAt: workout.endedAt,
   createdAt: workout.startedAt,
-  updatedAt: workout.endedAt,
+  updatedAt: workout.endedAt ?? workout.startedAt,
   exercises: workout.exercises.map(hydrateExercise),
 });

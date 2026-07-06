@@ -109,7 +109,7 @@ SCSS architectural framework for the application.
 
 The project leverages Docker for containerization, ensuring consistency across development and production environments.
 
-- **`docker-compose.yml`**: Orchestrates the multi-container setup (Backend server, Frontend web server, Redis, Database, Nginx reverse proxy).
+- **`docker-compose.yml`**: Orchestrates the multi-container setup (Backend server, Frontend web server, Redis, Nginx reverse proxy). The PostgreSQL database is **not** part of this compose file — it runs on its own, and the backend reaches it via the connection settings in `backend/.env`.
 - **`deploy/nginx/`**: Nginx configuration (`nginx.conf`) acting as an API Gateway and static file server.
 - **`deploy/certs/`**: SSL certificates for local HTTPS development.
 - **`Makefile`**: Encapsulates common developer workflows and CLI commands for building, testing, and running the project.

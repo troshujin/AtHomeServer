@@ -16,3 +16,13 @@ app.use(router);
 useThemeStore(pinia);
 
 app.mount('#app')
+
+// PWA installability. The worker is a deliberate no-op (see public/sw.js);
+// registered after load so it never competes with first paint.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // Non-fatal: the app works identically without it.
+    });
+  });
+}

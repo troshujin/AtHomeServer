@@ -149,6 +149,39 @@
   }
 }
 
+.install-slot {
+  // Desktop-only, same split as the theme switcher: on mobile the install
+  // entry point lives in the full-screen menu's footer instead.
+  @include respond-to('medium') {
+    display: none;
+  }
+}
+
+.btn-install {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.5rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: rgba(var(--color-primary-rgb), 0.12);
+    color: var(--color-primary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
 .btn-login {
   display: inline-flex;
   align-items: center;

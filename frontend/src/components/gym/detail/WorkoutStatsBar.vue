@@ -7,8 +7,14 @@
 
     <dl class="workout-stats__grid">
       <div class="workout-stats__item">
+        <dt>Status</dt>
+        <dd :class="{ 'workout-stats__value--live': isInProgress }">
+          {{ isInProgress ? 'In progress' : 'Finished' }}
+        </dd>
+      </div>
+      <div class="workout-stats__item">
         <dt>Duration</dt>
-        <dd>{{ duration }}</dd>
+        <dd>{{ duration }}{{ isInProgress ? ' so far' : '' }}</dd>
       </div>
       <div class="workout-stats__item">
         <dt>Exercises</dt>
@@ -29,7 +35,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useWorkoutUtils } from '@/composables/gym/utils/useWorkoutUtils';
-import { formatDuration } from '@/lib/formatters';
+import { formatDuration, formatKg } from '@/lib/formatters';
 import type { Workout } from '@/types/gym';
 
 const props = defineProps<{
@@ -38,8 +44,11 @@ const props = defineProps<{
 
 const workoutUtils = useWorkoutUtils(props.workout);
 
-const formattedVolume = computed(() => new Intl.NumberFormat('nl-NL').format(workoutUtils.getVolume()));
+const formattedVolume = computed(() => formatKg(workoutUtils.getVolume()));
 
+const isInProgress = computed(() => workoutUtils.getStatus() === 'in-progress');
+
+// With a null end, formatDuration reports the time elapsed so far.
 const duration = computed(() => formatDuration(props.workout.startedAt, props.workout.endedAt));
 
 const totalSets = computed(() =>
@@ -114,6 +123,10 @@ const totalReps = computed(() =>
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--color-secondary);
+}
+
+.workout-stats__value--live {
+  color: var(--color-primary);
 }
 
 @media (max-width: 480px) {

@@ -21,10 +21,18 @@
           >
             Log in
           </a>
-          <RouterLink v-else class="user-chip" to="me" @click="closeMenu">
+          <RouterLink v-else class="user-chip" :to="profileLink" @click="closeMenu">
             <span class="user-avatar">{{ initials }}</span>
-            <span class="user-name">{{ authStore.currentUser.username }}</span>
+            <span class="user-name">{{ displayName }}</span>
           </RouterLink>
+        </div>
+
+        <!-- Only rendered when the browser has actually offered
+             installability (usePwaInstall) - never a dead button. -->
+        <div v-if="canInstall" class="install-slot">
+          <button class="btn-install" type="button" @click="installApp">
+            <span aria-hidden="true">&#8595;</span> Install app
+          </button>
         </div>
 
         <div class="theme-switcher-slot">
@@ -67,10 +75,15 @@
           >
             Log in
           </a>
-          <RouterLink v-else class="user-chip user-chip--block" to="me" @click="closeMenu">
+          <RouterLink v-else class="user-chip user-chip--block" :to="profileLink" @click="closeMenu">
             <span class="user-avatar">{{ initials }}</span>
-            <span class="user-name">{{ authStore.currentUser.username }}</span>
+            <span class="user-name">{{ displayName }}</span>
           </RouterLink>
+
+          <button v-if="canInstall" class="mobile-theme-button" type="button" @click="installApp">
+            <span class="mobile-theme-button__icon" aria-hidden="true">&#8595;</span>
+            <span class="mobile-theme-button__label">Install as app</span>
+          </button>
 
           <button class="mobile-theme-button" type="button" @click="openThemeMenu">
             <span class="mobile-theme-button__icon" aria-hidden="true">{{ currentTheme.icon }}</span>
@@ -88,13 +101,21 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import ThemeSwitcher from '@/components/common/ThemeSwitcher.vue';
+import usePwaInstall from '@/composables/usePwaInstall';
 import { API_BASE_URL } from '@/lib/config';
+import { formatUserName } from '@/lib/formatters';
 import { useAuthStore } from '@/stores/auth';
 import { getThemeDefinition, useThemeStore } from '@/stores/theme';
 
 const authStore = useAuthStore();
 const themeStore = useThemeStore();
 const route = useRoute();
+const { canInstall, install } = usePwaInstall();
+
+const installApp = () => {
+  closeMenu();
+  void install();
+};
 
 const navLinks = [
   { to: '/', label: 'Home' },
@@ -110,10 +131,17 @@ const mobileMenuRef = ref<HTMLElement | null>(null);
 const isMenuOpen = ref(false);
 const isScrolled = ref(false);
 
-const initials = computed(() => {
-  const name = authStore.currentUser?.username ?? '';
-  return name.slice(0, 2).toUpperCase();
-});
+// `/me` identities don't always carry a username - formatUserName falls
+// back through real name and email.
+const displayName = computed(() =>
+  authStore.currentUser ? formatUserName(authStore.currentUser) : '',
+);
+
+const initials = computed(() => displayName.value.slice(0, 2).toUpperCase());
+
+// The chip used to point at a `/me` route that never existed; the user's
+// own profile page is the real destination.
+const profileLink = computed(() => `/gym/users/${authStore.currentUser?.id ?? ''}`);
 
 const currentTheme = computed(() => getThemeDefinition(themeStore.theme));
 

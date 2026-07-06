@@ -28,6 +28,21 @@ export interface ExerciseFormState {
   startTime: string | null;
 }
 
+// The whole form's reactive state - owned by GymWorkoutForm.vue and shared
+// (by reference) with WorkoutMode.vue, so the full-screen logging interface
+// and the normal form edit the exact same data and switching between them
+// never loses anything.
+export interface WorkoutFormState {
+  name: string;
+  startedAt: string;
+  endedAt: string;
+  exercises: ExerciseFormState[];
+}
+
+/** A set counts as "done" once it has at least one complete weight+reps pair. */
+export const isCompletedSet = (set: SetFormState): boolean =>
+  set.reps.some((rep) => rep.weight !== null && rep.amount !== null && rep.amount >= 1);
+
 export const createRepFormState = (weight: number | null = null, amount: number | null = null): RepFormState => ({
   id: crypto.randomUUID(),
   weight,

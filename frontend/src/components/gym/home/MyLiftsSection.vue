@@ -11,8 +11,14 @@
       more-to="/gym/workouts"
     />
 
-    <AppButton class="my-lifts-section__add" variant="primary" size="lg" block to="/gym/workouts/new">
-      + Add workout
+    <AppButton
+      class="my-lifts-section__add"
+      variant="primary"
+      size="lg"
+      block
+      to="/gym/workouts/new"
+    >
+      New workout
     </AppButton>
   </SectionCard>
 </template>
@@ -23,11 +29,14 @@ import AppButton from '@/components/common/AppButton.vue';
 import SectionCard from '@/components/common/SectionCard.vue';
 import WorkoutFeed, { type WorkoutFeedItem } from '@/components/gym/WorkoutFeed.vue';
 import useWorkouts from '@/composables/gym/useWorkout';
+import { byMostRecent } from '@/composables/gym/utils/useWorkoutUtils';
 
 const { fetchWorkouts } = useWorkouts();
 const { data, loading, execute } = fetchWorkouts;
 
-const items = computed<WorkoutFeedItem[]>(() => (data.value ?? []).map((workout) => ({ workout })));
+const items = computed<WorkoutFeedItem[]>(() =>
+  [...(data.value ?? [])].sort(byMostRecent).map((workout) => ({ workout })),
+);
 
 onMounted(() => execute());
 </script>

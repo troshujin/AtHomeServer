@@ -21,7 +21,7 @@ export const toTimeInputValue = (date: Date): string => `${pad(date.getHours())}
 // next day if the resulting time would land before the reference - lets a
 // workout/exercise time range cross midnight without the input rejecting it.
 export const applyTimeToDate = (reference: Date, time: string): Date => {
-  const [hours, minutes] = time.split(':').map(Number);
+  const [hours = 0, minutes = 0] = time.split(':').map(Number);
   const result = new Date(reference);
   result.setHours(hours, minutes, 0, 0);
   if (result.getTime() < reference.getTime()) {

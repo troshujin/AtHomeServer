@@ -1,7 +1,7 @@
 <template>
   <div class="rep-chart-wrap">
     <div ref="scrollerRef" class="rep-chart" @scroll="updateEdges">
-      <div v-for="rep in reps" :key="rep.id" class="rep-bar">
+      <div v-for="(rep, index) in reps" :key="rep.id ?? index" class="rep-bar">
         <span class="rep-bar__weight">{{ rep.weight }}</span>
         <div class="rep-bar__track">
           <div class="rep-bar__fill" :style="{ height: `${barHeightPct(rep)}%` }" />
@@ -28,10 +28,18 @@
 
 <script lang="ts" setup>
 import { onMounted, onUnmounted, ref } from 'vue';
-import type { WorkoutRep } from '@/types/gym';
+
+// Structural subset of WorkoutRep, so live form state (WorkoutMode's
+// in-progress set, which has no entity ids yet) can render through the
+// exact same chart as saved workouts on the detail page.
+export interface RepChartRep {
+  id?: string;
+  weight: number;
+  amount: number;
+}
 
 const props = defineProps<{
-  reps: WorkoutRep[];
+  reps: RepChartRep[];
 }>();
 
 const scrollerRef = ref<HTMLElement | null>(null);
@@ -41,7 +49,7 @@ const hasMoreRight = ref(false);
 // Lowest rep in the set is pinned to 50% height (never vanishes, still
 // reads as "the low point" rather than "empty") and the heaviest to 100%,
 // with everything else interpolated linearly between.
-const barHeightPct = (rep: WorkoutRep): number => {
+const barHeightPct = (rep: RepChartRep): number => {
   const weights = props.reps.map((item) => item.weight);
   const heaviest = Math.max(...weights);
   const lightest = Math.min(...weights);

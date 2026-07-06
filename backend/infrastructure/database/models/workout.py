@@ -55,7 +55,8 @@ class WorkoutSet(Base):
 class WorkoutRep(Base):
     __tablename__: str = "workout_rep"
 
-    weight: Mapped[int] = mapped_column()
+    # Float, not int: gyms deal in half-kg plates (matches WorkoutRepDto).
+    weight: Mapped[float] = mapped_column()
     amount: Mapped[int] = mapped_column()
 
     set_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("workout_set.id"))

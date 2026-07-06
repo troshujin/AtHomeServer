@@ -17,13 +17,6 @@ export interface MockPerson {
 const rawKeys = (person: string, count: number): string[] =>
   Array.from({ length: count }, (_, i) => `${person}_${i}`);
 
-export const mockCurrentUser: User = makeUser('user-me', 'Tijmen');
-
-export const mockCurrentPerson: MockPerson = {
-  user: mockCurrentUser,
-  rawWorkoutKeys: rawKeys('tijmen', 10),
-};
-
 export const mockFriends: MockPerson[] = [
   { user: makeUser('user-henry', 'Henry'), rawWorkoutKeys: rawKeys('henry', 2) },
   { user: makeUser('user-sara', 'Sara'), rawWorkoutKeys: rawKeys('sara', 2) },

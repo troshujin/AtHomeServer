@@ -2,9 +2,10 @@ import type { AxiosResponse } from 'axios';
 import { useCachedApi } from '@/composables/api/useCacheApi';
 
 /**
- * There is no backend to talk to yet, so these helpers stand in for `useApiClient`
- * while still returning `AxiosResponse`-shaped data, matching the real client's
- * contract so swapping back to live HTTP calls later only touches this file.
+ * Helpers for the feeds that still have no backend endpoint (friends and
+ * promoted - see useFriends.ts / usePromoted.ts). They return
+ * `AxiosResponse`-shaped data, matching the real client's contract so the
+ * eventual swap to live HTTP calls only touches the composables themselves.
  */
 const MOCK_LATENCY_MS = 350;
 

@@ -1,5 +1,5 @@
-import { ref, type Ref } from 'vue';
-import type { User } from '@/types/user';
+import { computed, ref, type Ref } from 'vue';
+import type { CurrentUser } from '@/types/user';
 import { defineStore } from 'pinia';
 import type { PermissionShort } from '@/types/trojonetworks/permission';
 import { usePermissionChecker } from '@/composables/auth/usePermissionChecker';
@@ -18,12 +18,12 @@ export const useAuthStore = defineStore('auth', () => {
 
   const permChecker = usePermissionChecker();
 
-  const currentUser: Ref<User | null> = fetchMeResult;
+  const currentUser: Ref<CurrentUser | null> = fetchMeResult;
   const permissionCollection = ref<PermissionShort[]>([]);
 
   const loading: Ref<boolean> = fetchMeLoading;
   const error: Ref<string | null> = fetchMeError;
-  const isAuthenticated = ref(false);
+  const isAuthenticated = computed(() => currentUser.value !== null);
 
   const canI = {
     bypassEverything: () =>
@@ -31,7 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const getCurrentUser = async () => {
-    const response = await fetchMe();
+    await fetchMe();
   };
 
   const login = async () => {

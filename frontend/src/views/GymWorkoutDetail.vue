@@ -1,8 +1,6 @@
 <template>
-  <div class="workout-detail">
-    <RouterLink class="workout-detail__back" to="/gym">
-      <span aria-hidden="true">&larr;</span> Back to Gym
-    </RouterLink>
+  <PageShell class="workout-detail" max-width="1000px">
+    <BackLink to="/gym">Back to Gym</BackLink>
 
     <div v-if="loading && !entry" class="workout-detail__skeleton" aria-hidden="true">
       <SkeletonBlock height="2.2rem" width="55%" />
@@ -22,7 +20,8 @@
           <h1 class="workout-detail__title">{{ entry.workout.name }}</h1>
           <div class="workout-detail__byline">
             <UserBadge :user="entry.user" />
-            <span v-if="isMine" class="workout-detail__you-badge">You</span>
+            <BadgePill v-if="isMine">You</BadgePill>
+            <BadgePill v-if="!entry.workout.endedAt" variant="accent">In progress</BadgePill>
             <span class="workout-detail__dot" aria-hidden="true">&middot;</span>
             <span class="workout-detail__date">{{ formatDateShort(entry.workout.startedAt) }}</span>
           </div>
@@ -45,20 +44,22 @@
         </div>
       </div>
     </template>
-  </div>
+  </PageShell>
 </template>
 
 <script lang="ts" setup>
 import { computed, onMounted, watch } from 'vue';
-import { RouterLink } from 'vue-router';
 import AppButton from '@/components/common/AppButton.vue';
+import BackLink from '@/components/common/BackLink.vue';
+import BadgePill from '@/components/common/BadgePill.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import PageShell from '@/components/common/PageShell.vue';
 import SkeletonBlock from '@/components/common/SkeletonBlock.vue';
 import UserBadge from '@/components/common/UserBadge.vue';
 import WorkoutExerciseNav from '@/components/gym/detail/WorkoutExerciseNav.vue';
 import WorkoutExerciseSection from '@/components/gym/detail/WorkoutExerciseSection.vue';
 import WorkoutStatsBar from '@/components/gym/detail/WorkoutStatsBar.vue';
-import { mockCurrentUser } from '@/composables/gym/mocks/users.mock';
+import useCurrentUser from '@/composables/auth/useCurrentUser';
 import useWorkoutDetail from '@/composables/gym/useWorkoutDetail';
 import { formatDateShort } from '@/lib/formatters';
 
@@ -66,43 +67,23 @@ const props = defineProps<{
   id: string;
 }>();
 
+const { fetchMe } = useCurrentUser();
 const { fetchWorkoutDetail } = useWorkoutDetail();
 const { data: entry, loading, execute } = fetchWorkoutDetail;
 
-const isMine = computed(() => entry.value?.user.id === mockCurrentUser.id);
+const isMine = computed(() => {
+  const me = fetchMe.data.value;
+  return !!me && entry.value?.user.id === me.id;
+});
 
-onMounted(() => execute(props.id));
+onMounted(() => {
+  fetchMe.execute();
+  execute(props.id);
+});
 watch(() => props.id, (id) => execute(id));
 </script>
 
 <style scoped>
-.workout-detail {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 1.5rem 1.5rem 3rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.workout-detail__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  align-self: flex-start;
-  font-size: 0.87rem;
-  font-weight: 600;
-  color: var(--color-text);
-  opacity: 0.75;
-  text-decoration: none;
-}
-
-.workout-detail__back:hover {
-  opacity: 1;
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
 .workout-detail__skeleton {
   display: flex;
   flex-direction: column;
@@ -133,17 +114,6 @@ watch(() => props.id, (id) => execute(id));
   align-items: center;
   gap: 0.6rem;
   flex-wrap: wrap;
-}
-
-.workout-detail__you-badge {
-  padding: 0.15rem 0.55rem;
-  border-radius: var(--radius-pill);
-  background: rgba(var(--color-primary-rgb), 0.12);
-  color: var(--color-primary);
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
 .workout-detail__dot {

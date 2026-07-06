@@ -14,8 +14,8 @@ class IdentityService:
     async def get_current_user_session(self) -> RedisSessionDto | None:
         session_id = self.request.cookies.get("session_id")
 
-        print(self.request.cookies)
-        print(session_id)
+        print("get_current_user_session", self.request.cookies)
+        print("get_current_user_session", session_id)
 
         if not session_id:
             return None

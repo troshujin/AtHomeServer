@@ -13,7 +13,7 @@
             step="0.5"
             placeholder="0"
             :value="rep.weight ?? ''"
-            @input="rep.weight = parseValue(($event.target as HTMLInputElement).value)"
+            @input="rep.weight = parseWeight(($event.target as HTMLInputElement).value)"
           />
         </label>
 
@@ -26,7 +26,7 @@
             step="1"
             placeholder="0"
             :value="rep.amount ?? ''"
-            @input="rep.amount = parseValue(($event.target as HTMLInputElement).value)"
+            @input="rep.amount = parseAmount(($event.target as HTMLInputElement).value)"
           />
         </label>
 
@@ -64,10 +64,17 @@ const emit = defineEmits<{
   remove: [];
 }>();
 
-const parseValue = (raw: string): number | null => {
+// Weight allows half-kg plates; reps are always whole numbers.
+const parseWeight = (raw: string): number | null => {
   if (raw === '') return null;
   const parsed = Number(raw);
   return Number.isNaN(parsed) ? null : parsed;
+};
+
+const parseAmount = (raw: string): number | null => {
+  if (raw === '') return null;
+  const parsed = Number(raw);
+  return Number.isNaN(parsed) ? null : Math.round(parsed);
 };
 
 const addRep = () => {

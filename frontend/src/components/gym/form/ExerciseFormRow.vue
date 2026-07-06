@@ -75,7 +75,7 @@
 import { computed } from 'vue';
 import AppButton from '@/components/common/AppButton.vue';
 import ComboBox from '@/components/common/ComboBox.vue';
-import { findExerciseHistory, getKnownExerciseNames } from '@/composables/gym/mocks/exerciseHistory';
+import { findExerciseHistory, getKnownExerciseNames } from '@/composables/gym/exerciseHistory';
 import { applyTimeToDate, toTimeInputValue } from '@/lib/datetimeInput';
 import { formatDateShort } from '@/lib/formatters';
 import { createRepFormState, createSetFormState, type ExerciseFormState } from './formState';
@@ -119,13 +119,11 @@ const handleEndInput = (event: Event) => {
   props.exercise.durationMinutes = Math.max(1, diffMinutes);
 };
 
-// A snapshot taken when this row is created is enough - the form is always
-// freshly mounted per visit to /gym/workouts/new, so a workout logged
-// earlier in the *same* session is already picked up next time the page
-// is opened. It doesn't need to be reactive to changes made in a sibling
-// row within the same still-open form, which isn't a case worth the extra
-// plumbing for a mock data layer standing in for a real endpoint.
-const knownExerciseNames = getKnownExerciseNames();
+// Computed, not a snapshot: the history reads the real `/workouts` list
+// out of the shared cache, and this row can be mounted before that fetch
+// (kicked off by the form view) has resolved - a snapshot would freeze the
+// suggestions as empty.
+const knownExerciseNames = computed(() => getKnownExerciseNames());
 
 const name = computed({
   get: () => props.exercise.name,

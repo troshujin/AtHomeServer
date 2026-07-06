@@ -20,11 +20,19 @@ const router = createRouter({
       },
     },
     {
-      path: '/gym/workouts/new',
-      name: 'gym-workout-new',
-      component: () => import('@/views/GymWorkoutForm.vue'),
+      path: '/gym/workouts',
+      name: 'gym-workouts',
+      component: () => import('@/views/GymWorkoutList.vue'),
       meta: {
-        title: 'New workout',
+        title: 'My lifts',
+      },
+    },
+    {
+      path: '/gym/workouts/new',
+      name: 'gym-workout-start',
+      component: () => import('@/views/GymWorkoutStart.vue'),
+      meta: {
+        title: 'Start workout',
       },
     },
     {
@@ -43,6 +51,61 @@ const router = createRouter({
       props: true,
       meta: {
         title: 'Edit workout',
+      },
+    },
+    {
+      path: '/gym/friends',
+      name: 'gym-friends',
+      component: () => import('@/views/GymActivityFeed.vue'),
+      props: { feed: 'friends' },
+      meta: {
+        title: 'Friends',
+      },
+    },
+    {
+      path: '/gym/promoted',
+      name: 'gym-promoted',
+      component: () => import('@/views/GymActivityFeed.vue'),
+      props: { feed: 'promoted' },
+      meta: {
+        title: 'Promoted',
+      },
+    },
+    {
+      path: '/gym/users/:id',
+      name: 'gym-user-profile',
+      component: () => import('@/views/GymUserProfile.vue'),
+      props: true,
+      meta: {
+        title: 'Profile',
+      },
+    },
+    // The API client redirects here when a request comes back 401/403.
+    {
+      path: '/401',
+      name: 'unauthorized',
+      component: () => import('@/views/StatusView.vue'),
+      props: { code: 401 },
+      meta: {
+        title: 'Log in required',
+      },
+    },
+    {
+      path: '/403',
+      name: 'forbidden',
+      component: () => import('@/views/StatusView.vue'),
+      props: { code: 403 },
+      meta: {
+        title: 'No access',
+      },
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/StatusView.vue'),
+      props: { code: 404 },
+      meta: {
+        title: 'Not found',
       },
     },
   ],
