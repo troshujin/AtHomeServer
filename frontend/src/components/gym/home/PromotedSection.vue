@@ -1,10 +1,15 @@
 <template>
   <SectionCard title="Promoted">
     <template #actions>
-      <AppButton size="sm">View all</AppButton>
+      <AppButton size="sm" to="/gym/promoted">View all</AppButton>
     </template>
 
-    <WorkoutFeed :items="items" :loading="loading" empty-message="Nothing promoted right now." />
+    <WorkoutFeed
+      :items="items"
+      :loading="loading"
+      empty-message="Nothing promoted right now."
+      more-to="/gym/promoted"
+    />
   </SectionCard>
 </template>
 

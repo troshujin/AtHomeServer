@@ -4,7 +4,12 @@
       <AppButton size="sm" to="/gym/workouts">View all</AppButton>
     </template>
 
-    <WorkoutFeed :items="items" :loading="loading" empty-message="You haven't logged a workout yet." />
+    <WorkoutFeed
+      :items="items"
+      :loading="loading"
+      empty-message="You haven't logged a workout yet."
+      more-to="/gym/workouts"
+    />
 
     <AppButton class="my-lifts-section__add" variant="primary" size="lg" block to="/gym/workouts/new">
       + Add workout

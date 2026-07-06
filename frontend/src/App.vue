@@ -4,11 +4,14 @@
   </div>
 
   <RouterView />
+
+  <ThemeMenu />
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import NavBar from './components/layout/NavBar.vue';
+import ThemeMenu from './components/common/ThemeMenu.vue';
 
 const getAllCookies = (): Record<string, string> => {
   if (!document.cookie) return {};

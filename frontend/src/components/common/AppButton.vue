@@ -5,7 +5,8 @@
     :class="[`app-button--${variant}`, `app-button--${size}`, { 'app-button--block': block }]"
     :to="to"
     :href="href"
-    :type="tag === 'button' ? 'button' : undefined"
+    :type="tag === 'button' ? type : undefined"
+    :disabled="tag === 'button' ? disabled : undefined"
   >
     <slot />
   </component>
@@ -22,6 +23,9 @@ const props = withDefaults(
     to?: RouteLocationRaw;
     href?: string;
     block?: boolean;
+    /** Only applies when rendered as a native `<button>` (no `to`/`href`). */
+    type?: 'button' | 'submit';
+    disabled?: boolean;
   }>(),
   {
     variant: 'ghost',
@@ -29,6 +33,8 @@ const props = withDefaults(
     to: undefined,
     href: undefined,
     block: false,
+    type: 'button',
+    disabled: false,
   },
 );
 
@@ -63,6 +69,12 @@ const tag = computed(() => {
   text-decoration: none;
 }
 
+.app-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .app-button--block {
   width: 100%;
 }
@@ -87,12 +99,12 @@ const tag = computed(() => {
 .app-button--primary {
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
   color: #fff;
-  box-shadow: 0 8px 20px -6px rgba(52, 152, 219, 0.5);
+  box-shadow: 0 8px 20px -6px rgba(var(--color-primary-rgb), 0.5);
 }
 
 .app-button--primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px -6px rgba(52, 152, 219, 0.6);
+  box-shadow: 0 10px 24px -6px rgba(var(--color-primary-rgb), 0.6);
 }
 
 .app-button--primary:active {
@@ -100,19 +112,19 @@ const tag = computed(() => {
 }
 
 .app-button--lg.app-button--primary {
-  box-shadow: 0 8px 10px -6px rgba(52, 152, 219, 0.5);
+  box-shadow: 0 8px 10px -6px rgba(var(--color-primary-rgb), 0.5);
 }
 
 .app-button--lg.app-button--primary:hover {
-  box-shadow: 0 10px 12px -6px rgba(52, 152, 219, 0.6);
+  box-shadow: 0 10px 12px -6px rgba(var(--color-primary-rgb), 0.6);
 }
 
 .app-button--ghost {
-  background: rgba(15, 23, 42, 0.05);
+  background: rgba(var(--overlay-rgb), 0.05);
   color: var(--color-secondary);
 }
 
 .app-button--ghost:hover {
-  background: rgba(15, 23, 42, 0.09);
+  background: rgba(var(--overlay-rgb), 0.09);
 }
 </style>

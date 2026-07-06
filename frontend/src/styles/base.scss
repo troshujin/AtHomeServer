@@ -1,49 +1,98 @@
 @use 'layout/navbar' as *;
 @use 'variables' as *;
 @use 'mixins' as *;
-
-// Shared design tokens as CSS custom properties, so plain (non-SCSS) component
-// styles can stay in sync with the SCSS palette without importing SCSS partials.
-:root {
-  --color-primary: #{$primary-color};
-  --color-primary-dark: #2f7fb8;
-  --color-accent: #6c5ce7;
-  --color-secondary: #{$secondary-color};
-  --color-text: #{$text-color};
-  --color-background: #{$background-color};
-  --surface-border: rgba(15, 23, 42, 0.07);
-  --surface-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-  --surface-shadow-lg: 0 24px 48px -16px rgba(15, 23, 42, 0.18);
-  --radius-lg: 1.25rem;
-  --radius-md: 0.9rem;
-  --radius-pill: 999px;
-}
+@use 'themes';
 
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+// Smooth in-page anchor jumps app-wide (e.g. WorkoutExerciseNav's quick
+// lookup) - gated on the media query rather than JS, so it composes with
+// prefers-reduced-motion for free instead of needing a per-link check.
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
   margin: 0;
   padding: 0;
   font-family: $font-stack;
-  background-color: $background-color;
-  color: $text-color;
+  background-color: var(--color-background);
+  color: var(--color-text);
   line-height: 1.6;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: $secondary-color;
+  color: var(--color-secondary);
   margin-top: 0;
 }
 
 a {
-  color: $primary-color;
+  color: var(--color-primary);
   text-decoration: none;
-  
+
   &:hover {
     text-decoration: underline;
   }
+}
+
+// Base native form control styling, set once globally rather than per
+// component - every text/number/datetime input across the app (forms are
+// new territory as of the workout create/edit page) gets a consistent,
+// theme-aware look for free instead of every form re-declaring it.
+input[type='text'],
+input[type='number'],
+input[type='datetime-local'],
+input[type='time'] {
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.75rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.15);
+  }
+
+  &::placeholder {
+    color: var(--color-text);
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  input[type='text'],
+  input[type='number'],
+  input[type='datetime-local'],
+  input[type='time'] {
+    transition: none;
+  }
+}
+
+// Shared form layout primitives - global rather than scoped-per-component,
+// since a labeled field is the same shape everywhere it appears (workout
+// name/dates, set weight/reps, etc.) and several different form components
+// need to agree on it.
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  opacity: 0.75;
 }
 
 .container {
@@ -58,7 +107,7 @@ a {
 
 .sidebar {
   width: 300px;
-  
+
   @include respond-to('small') {
     width: 100%;
   }

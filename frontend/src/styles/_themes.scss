@@ -1,0 +1,273 @@
+// Theme contract.
+//
+// Every theme below must define the exact same set of custom properties -
+// that's what makes adding a new one "just add a block." See
+// frontend/docs/STYLE_GUIDE.md section "Theming" for the contrast rules and
+// the checklist to follow when adding one. The theme's id/display
+// name/picker icon are registered separately, in src/stores/theme.ts's
+// `THEMES` array - a theme isn't "real" until it exists in both places.
+//
+// `[data-theme="..."]` is set on <html> by src/stores/theme.ts.
+//
+// Most of a theme is "chrome" (borders, shadows, the neutral hover/skeleton
+// tint, shape) that only needs two variants: something that reads right on
+// a light background, and something that reads right on a dark one. These
+// mixins hold that shared half so each theme block below only has to state
+// what actually makes it distinct: brand colors, text, and the three
+// surface tones.
+@mixin light-chrome {
+  color-scheme: light;
+  --overlay-rgb: 15, 23, 42;
+  --surface-border: rgba(15, 23, 42, 0.07);
+  --surface-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --surface-shadow-lg: 0 24px 48px -16px rgba(15, 23, 42, 0.18);
+  --radius-pill: 999px;
+  --radius-md: 0.9rem;
+  --radius-lg: 1.25rem;
+  // Destructive-action red. Shared across every light theme rather than
+  // tuned per brand hue - it's a universal semantic color (like a browser's
+  // native validation red), not part of a theme's identity.
+  --color-danger: #dc2626;
+  --color-danger-rgb: 220, 38, 38;
+}
+
+@mixin dark-chrome {
+  color-scheme: dark;
+  --overlay-rgb: 255, 255, 255;
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --surface-shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+  --radius-pill: 999px;
+  --radius-md: 0.9rem;
+  --radius-lg: 1.25rem;
+  --color-danger: #f87171;
+  --color-danger-rgb: 248, 113, 113;
+}
+
+:root,
+[data-theme='light'] {
+  @include light-chrome;
+
+  --color-primary: #3498db;
+  --color-primary-rgb: 52, 152, 219;
+  --color-primary-dark: #2f7fb8;
+  --color-accent: #6c5ce7;
+  --color-accent-rgb: 108, 92, 231;
+  --color-secondary: #2c3e50;
+  --color-text: #333333;
+
+  --color-background: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-surface-alt: rgba(15, 23, 42, 0.045);
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-scrolled: rgba(255, 255, 255, 0.86);
+  --glass-bg-solid: rgba(255, 255, 255, 0.92);
+}
+
+[data-theme='dark'] {
+  @include dark-chrome;
+
+  // Brand - lightened so they still read as "primary/accent" on a dark
+  // surface rather than looking muddy (a saturated mid-tone blue gets
+  // murky against near-black).
+  --color-primary: #60a5fa;
+  --color-primary-rgb: 96, 165, 250;
+  --color-primary-dark: #3b82f6;
+  --color-accent: #a78bfa;
+  --color-accent-rgb: 167, 139, 250;
+  --color-secondary: #f1f5f9;
+  --color-text: #cbd5e1;
+
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-alt: rgba(255, 255, 255, 0.05);
+
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-bg-scrolled: rgba(15, 23, 42, 0.88);
+  --glass-bg-solid: rgba(30, 41, 59, 0.92);
+}
+
+// --- The 9 extra "cool" themes -------------------------------------------
+// Registered in src/stores/theme.ts THEMES as: aurora, sunset, evergreen,
+// abyss, candy, neon-grid, rose-gold, magma, nordic-frost.
+
+[data-theme='aurora'] {
+  @include dark-chrome;
+
+  --color-primary: #34d1c9;
+  --color-primary-rgb: 52, 209, 201;
+  --color-primary-dark: #14b8a6;
+  --color-accent: #a78bfa;
+  --color-accent-rgb: 167, 139, 250;
+  --color-secondary: #e6faf7;
+  --color-text: #b7c4d9;
+
+  --color-background: #0b1220;
+  --color-surface: #131b2e;
+  --color-surface-alt: rgba(255, 255, 255, 0.05);
+
+  --glass-bg: rgba(11, 18, 32, 0.7);
+  --glass-bg-scrolled: rgba(11, 18, 32, 0.86);
+  --glass-bg-solid: rgba(19, 27, 46, 0.92);
+}
+
+[data-theme='sunset'] {
+  @include dark-chrome;
+
+  --color-primary: #fb7185;
+  --color-primary-rgb: 251, 113, 133;
+  --color-primary-dark: #f43f5e;
+  --color-accent: #fbbf24;
+  --color-accent-rgb: 251, 191, 36;
+  --color-secondary: #fff1e6;
+  --color-text: #e0bcc7;
+
+  --color-background: #1a0f1f;
+  --color-surface: #2a1830;
+  --color-surface-alt: rgba(255, 255, 255, 0.05);
+
+  --glass-bg: rgba(26, 15, 31, 0.7);
+  --glass-bg-scrolled: rgba(26, 15, 31, 0.86);
+  --glass-bg-solid: rgba(42, 24, 48, 0.92);
+}
+
+[data-theme='evergreen'] {
+  @include dark-chrome;
+
+  --color-primary: #4ade80;
+  --color-primary-rgb: 74, 222, 128;
+  --color-primary-dark: #22c55e;
+  --color-accent: #a3e635;
+  --color-accent-rgb: 163, 230, 53;
+  --color-secondary: #eafbea;
+  --color-text: #b9d4c1;
+
+  --color-background: #0e1a13;
+  --color-surface: #16261c;
+  --color-surface-alt: rgba(255, 255, 255, 0.05);
+
+  --glass-bg: rgba(14, 26, 19, 0.7);
+  --glass-bg-scrolled: rgba(14, 26, 19, 0.86);
+  --glass-bg-solid: rgba(22, 38, 28, 0.92);
+}
+
+[data-theme='abyss'] {
+  @include dark-chrome;
+
+  --color-primary: #38bdf8;
+  --color-primary-rgb: 56, 189, 248;
+  --color-primary-dark: #0ea5e9;
+  --color-accent: #2dd4bf;
+  --color-accent-rgb: 45, 212, 191;
+  --color-secondary: #e6f6ff;
+  --color-text: #aecbdd;
+
+  --color-background: #071a2b;
+  --color-surface: #0e2740;
+  --color-surface-alt: rgba(255, 255, 255, 0.05);
+
+  --glass-bg: rgba(7, 26, 43, 0.7);
+  --glass-bg-scrolled: rgba(7, 26, 43, 0.86);
+  --glass-bg-solid: rgba(14, 39, 64, 0.92);
+}
+
+[data-theme='candy'] {
+  @include light-chrome;
+
+  --color-primary: #ec4899;
+  --color-primary-rgb: 236, 72, 153;
+  --color-primary-dark: #db2777;
+  --color-accent: #a78bfa;
+  --color-accent-rgb: 167, 139, 250;
+  --color-secondary: #6b2452;
+  --color-text: #6b4a5c;
+
+  --color-background: #fdf1f9;
+  --color-surface: #ffffff;
+  --color-surface-alt: rgba(15, 23, 42, 0.045);
+
+  --glass-bg: rgba(253, 241, 249, 0.7);
+  --glass-bg-scrolled: rgba(253, 241, 249, 0.86);
+  --glass-bg-solid: rgba(255, 255, 255, 0.92);
+}
+
+[data-theme='neon-grid'] {
+  @include dark-chrome;
+
+  --color-primary: #f472b6;
+  --color-primary-rgb: 244, 114, 182;
+  --color-primary-dark: #d946ef;
+  --color-accent: #22d3ee;
+  --color-accent-rgb: 34, 211, 238;
+  --color-secondary: #f5e8ff;
+  --color-text: #c9b8e0;
+
+  --color-background: #08060f;
+  --color-surface: #140f24;
+  --color-surface-alt: rgba(255, 255, 255, 0.05);
+
+  --glass-bg: rgba(8, 6, 15, 0.7);
+  --glass-bg-scrolled: rgba(8, 6, 15, 0.86);
+  --glass-bg-solid: rgba(20, 15, 36, 0.92);
+}
+
+[data-theme='rose-gold'] {
+  @include light-chrome;
+
+  --color-primary: #e0865f;
+  --color-primary-rgb: 224, 134, 95;
+  --color-primary-dark: #c96b46;
+  --color-accent: #d4a373;
+  --color-accent-rgb: 212, 163, 115;
+  --color-secondary: #5c3a2e;
+  --color-text: #6b5248;
+
+  --color-background: #fbf3ee;
+  --color-surface: #ffffff;
+  --color-surface-alt: rgba(15, 23, 42, 0.045);
+
+  --glass-bg: rgba(251, 243, 238, 0.7);
+  --glass-bg-scrolled: rgba(251, 243, 238, 0.86);
+  --glass-bg-solid: rgba(255, 255, 255, 0.92);
+}
+
+[data-theme='magma'] {
+  @include dark-chrome;
+
+  --color-primary: #f97316;
+  --color-primary-rgb: 249, 115, 22;
+  --color-primary-dark: #ea580c;
+  --color-accent: #ef4444;
+  --color-accent-rgb: 239, 68, 68;
+  --color-secondary: #ffe8d9;
+  --color-text: #d9b3a8;
+
+  --color-background: #140505;
+  --color-surface: #241010;
+  --color-surface-alt: rgba(255, 255, 255, 0.05);
+
+  --glass-bg: rgba(20, 5, 5, 0.7);
+  --glass-bg-scrolled: rgba(20, 5, 5, 0.86);
+  --glass-bg-solid: rgba(36, 16, 16, 0.92);
+}
+
+[data-theme='nordic-frost'] {
+  @include light-chrome;
+
+  --color-primary: #5e81ac;
+  --color-primary-rgb: 94, 129, 172;
+  --color-primary-dark: #4c6f96;
+  --color-accent: #88c0d0;
+  --color-accent-rgb: 136, 192, 208;
+  --color-secondary: #2e3440;
+  --color-text: #3b4252;
+
+  --color-background: #eef2f6;
+  --color-surface: #ffffff;
+  --color-surface-alt: rgba(15, 23, 42, 0.045);
+
+  --glass-bg: rgba(238, 242, 246, 0.7);
+  --glass-bg-scrolled: rgba(238, 242, 246, 0.86);
+  --glass-bg-solid: rgba(255, 255, 255, 0.92);
+}

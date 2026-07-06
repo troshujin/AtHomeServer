@@ -15,7 +15,9 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 8080,
-    allowedHosts: ['myapp.localhost', 'localhost:8080'],
+    // '.trycloudflare.com' allows the random quick-tunnel subdomain from
+    // `make run-preview` (a fresh one is minted on every run).
+    allowedHosts: ['myapp.localhost', 'localhost:8080', '.trycloudflare.com'],
     watch: {
       usePolling: true,
     },

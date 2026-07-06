@@ -25,10 +25,14 @@ defineProps<{
   flex-direction: column;
   gap: 1rem;
   padding: 1.5rem;
-  background: #fff;
+  background: var(--color-surface);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--surface-shadow);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  /* Prevents a horizontally-scrolling descendant (the mobile carousel) from
+     forcing this grid/flex item to grow to fit its full unscrolled width. */
+  min-width: 0;
 }
 
 .section-card__header {
@@ -56,6 +60,7 @@ defineProps<{
 .section-card__body {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   min-height: 0;
 }
 </style>
