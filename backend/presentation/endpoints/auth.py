@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 from application.auth.dto import AuthCallbackDto, AuthLoginDto
 from application.auth.usecases.callback import AuthCallbackUseCase
 from application.auth.usecases.login import AuthLoginUseCase
+from application.auth.usecases.logout import AuthLogoutUseCase
 from core.decorators.response import resolve_response
 
 router = APIRouter(prefix="/auth")
@@ -15,6 +16,12 @@ router = APIRouter(prefix="/auth")
 async def login(use_case: Annotated[AuthLoginUseCase, Depends()]):
     payload = AuthLoginDto()
     return await use_case(payload)
+
+
+@router.get("/logout", response_model=None)
+@resolve_response(303)
+async def logout(use_case: Annotated[AuthLogoutUseCase, Depends()]):
+    return await use_case()
 
 
 @router.get("/callback", response_model=None)

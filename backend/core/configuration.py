@@ -49,8 +49,6 @@ class AuthConfig:
     DOMAIN: str = "{domain}"
     CURRENT_URL: str = "https://{domain}/api"
     NETWORK_ID: str = "none"
-    # Filled from EnvConfig in init_auth - kept on auth so call sites
-    # (login.py, trojonetworks api_client.py) keep reading config.auth.*.
     LOGIN_BASE_URL: str = ""
     LOGIN_API_URL: str = ""
 

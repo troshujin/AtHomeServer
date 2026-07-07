@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from fastapi import Depends
 from typing import Annotated
 
@@ -33,6 +31,16 @@ class AuthCallbackUseCase:
         )
 
     async def __call__(self, payload: AuthCallbackDto) -> Result[RedirectResponse]:
+        result = await self.run(payload)
+
+        if isinstance(result, Failure):
+            return succeed(
+                RedirectResponse(url=f"/error?q={result.error.message}", status_code=303)
+            )
+
+        return result
+
+    async def run(self, payload: AuthCallbackDto) -> Result[RedirectResponse]:
         token_key = payload.state
         login_process_key = AuthCacheKeyGenerator.login_process(token_key)
         login_session_raw = await self.redis.get(login_process_key)
@@ -68,29 +76,20 @@ class AuthCallbackUseCase:
         tokens = tokens_result.unwrap()
 
         user_session_id = AuthCacheKeyGenerator.new_id()
-        rt_data = auth_utils.decode_refresh_jwt(tokens.refresh_token)
 
         user_session = RedisSessionDto(
             id=user_session_id,
             tokens=tokens
         )
 
+        # Also queues the session/hint cookies via request.state - see
+        # RefreshUserSessionUseCase._save_session and
+        # SessionCookieSyncMiddleware.
         user_info = await self.refresh_user_session_use_case(user_session=user_session)
 
         if isinstance(user_info, Failure):
             return fail(user_info.error)
 
-        expires_in = rt_data.exp - int(datetime.now(timezone.utc).timestamp())
         result = RedirectResponse(url=login_session.target_url, status_code=303)
-
-        result.set_cookie(
-            key="session_id",
-            value=user_session_id,
-            httponly=True,
-            secure=True,
-            samesite="lax",
-            max_age=expires_in,
-            # domain=config.auth.DOMAIN,
-        )
 
         return succeed(result)

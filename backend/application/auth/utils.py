@@ -72,7 +72,7 @@ def generate_code_challenge(verifier: str) -> str:
 
 def resolve_token_response(response: Response) -> Result[TokensDto]:
     if response.status_code != 200:
-        return fail(CustomException("Failed to exchange code for tokens."))
+        return fail(CustomException("Failed to exchange code for tokens.", response.status_code))
 
     token_data = cast(dict[str, str], response.json())
     refresh_cookie = response.cookies.get("refreshToken")

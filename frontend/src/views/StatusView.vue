@@ -18,12 +18,6 @@ import { computed } from 'vue';
 import AppButton from '@/components/common/AppButton.vue';
 import { API_BASE_URL } from '@/lib/config';
 
-/**
- * One view for every "you can't be here" screen - 401 (api client redirects
- * here on an unauthenticated response), 403 (same, for forbidden), and the
- * router's catch-all 404. Same shape, different copy and actions, so they
- * share a component the way the friends/promoted feeds do.
- */
 const props = defineProps<{
   code: 401 | 403 | 404;
 }>();
@@ -31,15 +25,15 @@ const props = defineProps<{
 const COPY = {
   401: {
     title: 'Log in to continue',
-    message: 'This page is only visible once you’re logged in.',
+    message: 'This page is only visible once you\'re logged in.',
   },
   403: {
     title: 'No access',
-    message: 'You’re logged in, but this page isn’t available to your account.',
+    message: 'You\'re logged in, but this page isn\'t available to your account.',
   },
   404: {
     title: 'Page not found',
-    message: 'This page doesn’t exist — the link may be old or mistyped.',
+    message: 'This page doesn\'t exist — the link may be old or mistyped.',
   },
 } as const;
 
@@ -60,8 +54,6 @@ const loginUrl = `${API_BASE_URL}/auth/login`;
   gap: 0.5rem;
 }
 
-/* The one oversized "hero number" this screen gets - the same single-big-
-   figure treatment as a workout card's volume stat. */
 .status-page__code {
   margin: 0;
   font-size: 5rem;

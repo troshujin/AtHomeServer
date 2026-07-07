@@ -14,13 +14,14 @@
 
       <div class="navbar-actions">
         <div class="auth-inline">
-          <a
+          <button
             v-if="!authStore.currentUser"
+            type="button"
             class="btn-login"
-            :href="`${API_BASE_URL}/auth/login`"
+            @click="authStore.login()"
           >
             Log in
-          </a>
+          </button>
           <RouterLink v-else class="user-chip" :to="profileLink" @click="closeMenu">
             <span class="user-avatar">{{ initials }}</span>
             <span class="user-name">{{ displayName }}</span>
@@ -68,13 +69,14 @@
         </div>
 
         <div class="mobile-menu__footer">
-          <a
+          <button
             v-if="!authStore.currentUser"
+            type="button"
             class="btn-login btn-login--block"
-            :href="`${API_BASE_URL}/auth/login`"
+            @click="authStore.login()"
           >
             Log in
-          </a>
+          </button>
           <RouterLink v-else class="user-chip user-chip--block" :to="profileLink" @click="closeMenu">
             <span class="user-avatar">{{ initials }}</span>
             <span class="user-name">{{ displayName }}</span>
@@ -102,7 +104,6 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import ThemeSwitcher from '@/components/common/ThemeSwitcher.vue';
 import usePwaInstall from '@/composables/usePwaInstall';
-import { API_BASE_URL } from '@/lib/config';
 import { formatUserName } from '@/lib/formatters';
 import { useAuthStore } from '@/stores/auth';
 import { getThemeDefinition, useThemeStore } from '@/stores/theme';
@@ -184,7 +185,7 @@ const handleViewportChange = (event: MediaQueryListEvent) => {
 watch(() => route.fullPath, closeMenu);
 
 onMounted(async () => {
-  await authStore.getCurrentUser();
+  await authStore.init();
   window.addEventListener('scroll', handleScroll, { passive: true });
   document.addEventListener('click', handleOutsideClick);
   document.addEventListener('keydown', handleKeydown);

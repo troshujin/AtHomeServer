@@ -10,10 +10,13 @@ class CustomException(Exception):
     details: dict[str, object]
 
     def __init__(
-        self, message: str | None = None, details: dict[str, object] | None = None
+        self, message: str | None = None, http_code: int | None = None, details: dict[str, object] | None = None
     ) -> None:
         if message:
             self.message = message
+
+        if http_code:
+            self.http_code = http_code
 
         self.details = details or {}
         super().__init__(self.message)

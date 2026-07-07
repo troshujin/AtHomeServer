@@ -33,5 +33,10 @@ export default function useCurrentUser() {
     () => api.get<CurrentUser>(buildUrl()),
   );
 
-  return { fetchMe };
+  // Always hits the network (never the cache) and never triggers the global
+  // 401/403 redirect/toast - a failure here just means "not logged in yet",
+  // which is the expected outcome most of the time this is called.
+  const probeMe = () => api.get<CurrentUser>(buildUrl(), { silent: true });
+
+  return { fetchMe, probeMe };
 }

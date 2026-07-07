@@ -182,13 +182,20 @@ class RefreshUserSessionUseCase:
 
         session = user_session.unwrap()
         rt_data = auth_utils.decode_refresh_jwt(session.tokens.refresh_token)
+        expires_in = rt_data.exp - int(datetime.now(timezone.utc).timestamp())
 
         session_key = AuthCacheKeyGenerator.session(session.id)
 
         await self.redis.set(
             session_key,
             session.model_dump_json(),
-            rt_data.exp - int(datetime.now(timezone.utc).timestamp()),
+            expires_in,
+        )
+
+        # Gets captured by SessionCookieSyncMiddleware
+        self.identity_service.request.state.refresh_session_cookies = (
+            session.id,
+            expires_in,
         )
 
         return user_session

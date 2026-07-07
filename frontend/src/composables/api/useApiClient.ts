@@ -5,6 +5,13 @@ import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRoute, useRouter } from 'vue-router';
 
+export interface ApiRequestConfig extends AxiosRequestConfig {
+  /** Skip the global 401/403 redirect and error toast for this request -
+   * for calls where a failure is an expected, normal outcome (e.g. probing
+   * whether a session is still valid before sending the user to log in). */
+  silent?: boolean;
+}
+
 const isValidDateString = (dateString: string): boolean => {
   // ISO 8601 full date/time. The backend serializes timezone-aware datetimes
   // with a numeric offset ("2023-08-08T12:34:56+00:00"), not just "Z".
@@ -62,36 +69,38 @@ export function useApiClient(config?: AxiosRequestConfig) {
     },
     (error: AxiosError<ErrorMessage>) => {
       const statusCode = error.response?.status;
+      const silent = (error.config as ApiRequestConfig | undefined)?.silent ?? false;
 
-      let uri = route.query.redirect as string;
-      uri = btoa(route.fullPath);
+      if (!silent) {
+        const uri = btoa(route.fullPath);
 
-      if (statusCode === 401) {
-        router.push(`/401?redirect=${uri}`);
+        if (statusCode === 401) {
+          router.push(`/401?redirect=${uri}`);
+        }
+
+        if (statusCode === 403) {
+          router.push(`/403?redirect=${uri}`);
+        }
+
+        toasts.addToast({
+          message: error.response?.data.message || error.message || 'Something went wrong.',
+          type: 'error',
+          duration: 5000,
+        });
       }
-
-      if (statusCode === 403) {
-        router.push(`/403?redirect=${uri}`);
-      }
-
-      toasts.addToast({
-        message: error.response?.data.message || error.message || 'Something went wrong.',
-        type: 'error',
-        duration: 5000,
-      });
 
       return Promise.reject(error);
     },
   );
 
-  const get = async <T>(url: string, reqConfig?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+  const get = async <T>(url: string, reqConfig?: ApiRequestConfig): Promise<AxiosResponse<T>> => {
     return await instance.get<T>(url, reqConfig);
   };
 
   const post = async <T, B>(
     url: string,
     data?: B,
-    reqConfig?: AxiosRequestConfig,
+    reqConfig?: ApiRequestConfig,
   ): Promise<AxiosResponse<T>> => {
     return await instance.post<T>(url, data, reqConfig);
   };
@@ -99,7 +108,7 @@ export function useApiClient(config?: AxiosRequestConfig) {
   const put = async <T, B>(
     url: string,
     data?: B,
-    reqConfig?: AxiosRequestConfig,
+    reqConfig?: ApiRequestConfig,
   ): Promise<AxiosResponse<T>> => {
     return await instance.put<T>(url, data, reqConfig);
   };
@@ -107,12 +116,12 @@ export function useApiClient(config?: AxiosRequestConfig) {
   const patch = async <T, B>(
     url: string,
     data?: B,
-    reqConfig?: AxiosRequestConfig,
+    reqConfig?: ApiRequestConfig,
   ): Promise<AxiosResponse<T>> => {
     return await instance.patch<T>(url, data, reqConfig);
   };
 
-  const del = async <T>(url: string, reqConfig?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+  const del = async <T>(url: string, reqConfig?: ApiRequestConfig): Promise<AxiosResponse<T>> => {
     return await instance.delete<T>(url, reqConfig);
   };
 

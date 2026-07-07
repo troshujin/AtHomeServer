@@ -100,6 +100,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/error',
+      name: 'error',
+      component: () => import('@/views/ErrorView.vue'),
+      meta: {
+        title: 'Error',
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('@/views/StatusView.vue'),
