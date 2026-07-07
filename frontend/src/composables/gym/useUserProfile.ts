@@ -2,7 +2,7 @@ import type { Workout } from '@/types/gym';
 import type { User } from '@/types/user';
 import { useCachedApi } from '../api/useCacheApi';
 import useCurrentUser, { toDisplayUser } from '../auth/useCurrentUser';
-import useWorkouts from './useWorkout';
+import useWorkouts, { HISTORY_PARAMS } from './useWorkout';
 import { mockFriendActivity, mockPromotedActivity } from './mocks/workouts.mock';
 import { byMostRecent } from './utils/useWorkoutUtils';
 import { mockDelay, toMockResponse } from './utils/useMockApi';
@@ -41,8 +41,8 @@ export default function useUserProfile() {
         throw new Error('This user does not exist, or is not visible to you.');
       }
 
-      await fetchWorkouts.execute();
-      const workouts = [...(fetchWorkouts.data.value ?? [])].sort(byMostRecent);
+      await fetchWorkouts.execute(HISTORY_PARAMS);
+      const workouts = [...(fetchWorkouts.data.value?.items ?? [])].sort(byMostRecent);
       // toMockResponse here just wraps in the AxiosResponse shape the cache
       // layer expects - the data above is real.
       return toMockResponse({ user: toDisplayUser(me), isMe: true, workouts });

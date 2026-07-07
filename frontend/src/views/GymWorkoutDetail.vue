@@ -27,8 +27,28 @@
           </div>
         </div>
 
-        <AppButton v-if="isMine" :to="`/gym/workouts/${entry.workout.id}/edit`">Edit</AppButton>
+        <div v-if="isMine" class="workout-detail__actions">
+          <AppButton :to="`/gym/workouts/${entry.workout.id}/edit`">Edit</AppButton>
+          <button
+            type="button"
+            class="workout-detail__delete"
+            :disabled="deleteWorkout.loading.value"
+            @click="showDeleteConfirm = true"
+          >
+            Delete
+          </button>
+        </div>
       </header>
+
+      <ConfirmDialog
+        v-if="showDeleteConfirm"
+        title="Delete this workout?"
+        message="This can't be undone - the workout and all its exercises and sets will be gone for good."
+        confirm-label="Delete"
+        :loading="deleteWorkout.loading.value"
+        @confirm="handleDelete"
+        @close="showDeleteConfirm = false"
+      />
 
       <WorkoutStatsBar :workout="entry.workout" />
 
@@ -48,10 +68,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import AppButton from '@/components/common/AppButton.vue';
 import BackLink from '@/components/common/BackLink.vue';
 import BadgePill from '@/components/common/BadgePill.vue';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import PageShell from '@/components/common/PageShell.vue';
 import SkeletonBlock from '@/components/common/SkeletonBlock.vue';
@@ -60,6 +82,7 @@ import WorkoutExerciseNav from '@/components/gym/detail/WorkoutExerciseNav.vue';
 import WorkoutExerciseSection from '@/components/gym/detail/WorkoutExerciseSection.vue';
 import WorkoutStatsBar from '@/components/gym/detail/WorkoutStatsBar.vue';
 import useCurrentUser from '@/composables/auth/useCurrentUser';
+import useWorkouts from '@/composables/gym/useWorkout';
 import useWorkoutDetail from '@/composables/gym/useWorkoutDetail';
 import { formatDateShort } from '@/lib/formatters';
 
@@ -67,8 +90,10 @@ const props = defineProps<{
   id: string;
 }>();
 
+const router = useRouter();
 const { fetchMe } = useCurrentUser();
 const { fetchWorkoutDetail } = useWorkoutDetail();
+const { deleteWorkout } = useWorkouts();
 const { data: entry, loading, execute } = fetchWorkoutDetail;
 
 const isMine = computed(() => {
@@ -81,6 +106,22 @@ onMounted(() => {
   execute(props.id);
 });
 watch(() => props.id, (id) => execute(id));
+
+// Irreversible action - goes through ConfirmDialog per the style guide,
+// rather than deleting straight from the button click.
+const showDeleteConfirm = ref(false);
+
+const handleDelete = async () => {
+  try {
+    await deleteWorkout.execute(props.id);
+    router.push({ name: 'gym-workouts' });
+  } catch {
+    // Already reported to the user via the api client's response
+    // interceptor; stay on the page so they can retry.
+  } finally {
+    showDeleteConfirm.value = false;
+  }
+};
 </script>
 
 <style scoped>
@@ -95,6 +136,43 @@ watch(() => props.id, (id) => execute(id));
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.workout-detail__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Neutral by default, danger only on hover - same "don't shout destructive"
+   treatment as SetInputRow's remove-set button, just as a labeled pill
+   instead of a square icon button since this sits in a header action row
+   next to Edit rather than inline in a list. */
+.workout-detail__delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.3rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: rgba(var(--overlay-rgb), 0.05);
+  color: var(--color-secondary);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.87rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.workout-detail__delete:hover:not(:disabled) {
+  background: rgba(var(--color-danger-rgb), 0.12);
+  color: var(--color-danger);
+}
+
+.workout-detail__delete:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .workout-detail__heading {

@@ -202,6 +202,40 @@ Reach for this instead of hand-rolling `<section>` styling — consistent
 padding/radius/shadow across the app is what makes a page feel coherent
 rather than assembled from mismatched parts.
 
+### `common/Modal.vue`, `common/ConfirmDialog.vue`
+
+`Modal` is the one generic dialog shell — `<Teleport to="body">`'d, backed by
+`useModalStack` (a shared, module-level stack so `isTop()` means something
+across multiple modal instances) for correct Escape-key targeting when more
+than one is ever open. It's driven entirely by the caller's own `v-if`
+around `<Modal>` — mounting *is* opening, unmounting *is* closing, there's
+no separate `open`/`visible` prop to keep in sync. `size`: `sm` (default,
+confirm-dialog width) / `md` / `lg` (near full-screen). `enableClosing`
+disables the × button and both Escape/outside-click, for a step that
+shouldn't be dismissible (e.g. `ConfirmDialog` disables it while `loading`
+is true, so a pending irreversible request can't be walked away from
+mid-flight). Same backdrop/panel chrome and motion as `ThemeMenu` (bottom
+sheet on mobile, centered card from `641px` up) — one consistent "how a
+modal presents itself" across the app, deliberately reused rather than
+each modal inventing its own entrance.
+
+`ConfirmDialog` wraps `Modal` for exactly one job: the single confirm step
+required before an irreversible action (see [§8](#8-clarity--navigation)).
+`title` + `message` (or the default slot, for anything richer than plain
+text), `confirmLabel`/`cancelLabel`, and `loading` (disables both buttons
+and the dialog's own close paths while the caller's request is in flight —
+the caller owns the actual async call and passes its own loading state
+in, `ConfirmDialog` never calls an API itself). `danger` defaults to `true`
+since that's the common case this component exists for. The confirm button
+is intentionally *not* `AppButton` — `AppButton` caps at two variants on
+purpose (see below), so a destructive confirm is a resting-state
+danger-tinted pill (`--color-danger` text on a `--color-danger-rgb`
+background tint, not solid fill + white text) instead of a third variant.
+The tint (rather than solid fill) is why it clears contrast in both themes
+without a separate dark-theme override — see [§3](#3-design-tokens)'s
+contrast rules for why `--color-danger` isn't used as a button's solid
+background.
+
 ### `common/EmptyState.vue`
 
 Every list-like view needs a designed empty state, not a blank div. Message
@@ -447,9 +481,12 @@ that means:
 
 - No fake urgency ("only 2 spots left," countdown timers on nothing).
 - No guilt/streak-shaming copy ("Don't break your streak!" nags).
-- No dark-pattern friction on opt-out actions (deleting a workout, logging
-  out, dismissing a prompt) — those should be exactly as easy as the
-  primary action, not buried or double-confirmed to discourage them.
+- No dark-pattern friction on opt-out actions (logging out, dismissing a
+  prompt) — those should be exactly as easy as the primary action, not
+  buried or padded with extra steps to discourage them. Irreversible
+  actions (deleting a workout) are the one deliberate exception: they get
+  exactly one `ConfirmDialog` step — see [§8](#8-clarity--navigation) for
+  why that's a safety net rather than the friction this rule is about.
 - No notification bait that isn't the user's own data changing.
 
 If a proposed "engagement" idea doesn't survive "would this still feel good
@@ -473,6 +510,19 @@ if the user thought about it for 5 seconds," don't ship it.
   opens navigation, a dashed outline always means "this is an action tile,
   not content," an avatar circle always means "this belongs to a person."
   Don't reuse a visual motif for a different meaning elsewhere in the app.
+- **Irreversible actions get exactly one confirm step — never zero, never
+  more than one.** Anything with no undo (deleting a workout, and anything
+  else destructive added later with no soft-delete/undo path) opens
+  `common/ConfirmDialog.vue` before it happens: a single, clearly-labeled
+  choice ("Delete" / "Cancel"), not a second nag, a typed confirmation
+  phrase, or a countdown. This is a safety net for something the user can't
+  take back, not the "opt-out friction" [§7](#7-engagement-bait-the-healthy-kind)
+  warns against — that rule is about padding an action with steps to
+  discourage it; one confirm step for an irreversible action is the
+  opposite of that, it's what makes the action safe to offer as
+  unhesitatingly as everything else. Reversible destructive-looking actions
+  (removing a still-unsaved set row mid-edit) don't need it — only reach
+  for `ConfirmDialog` once there's genuinely no way back.
 
 ## 9. Theming
 
@@ -803,3 +853,6 @@ Before adding a new component or screen, confirm:
       fetches), that other screen was actually checked for staleness after
       the mutation — don't assume a separate `useCachedApi` call will
       notice a change it has no way to know about.
+- [ ] If it's irreversible (a delete, or anything else with no undo), it
+      goes through `common/ConfirmDialog.vue` ([§8](#8-clarity--navigation))
+      — exactly one confirm step, not zero and not a second nag on top of it.

@@ -103,7 +103,7 @@ import SkeletonBlock from '@/components/common/SkeletonBlock.vue';
 import ExerciseFormRow from '@/components/gym/form/ExerciseFormRow.vue';
 import { createExerciseFormState, createRepFormState, createSetFormState, type ExerciseFormState, type WorkoutFormState } from '@/components/gym/form/formState';
 import WorkoutMode from '@/components/gym/form/WorkoutMode.vue';
-import useWorkouts from '@/composables/gym/useWorkout';
+import useWorkouts, { HISTORY_PARAMS } from '@/composables/gym/useWorkout';
 import { applyTimeToDate, fromDateTimeLocalValue, toDateTimeLocalValue, toTimeInputValue } from '@/lib/datetimeInput';
 import type { MutateWorkout, MutateWorkoutExercise, Workout } from '@/types/gym';
 
@@ -193,10 +193,11 @@ const exerciseTimings = computed(() => {
 });
 
 onMounted(async () => {
-  // Warms the shared `workouts` cache that exerciseHistory.ts reads its
-  // "known exercises" / "last time" suggestions from; not awaited because
-  // the form itself doesn't need it.
-  fetchWorkouts.execute();
+  // Warms the shared cache entry that exerciseHistory.ts reads its "known
+  // exercises" / "last time" suggestions from (same HISTORY_PARAMS, so it
+  // lands in the same cache key); not awaited because the form itself
+  // doesn't need it.
+  fetchWorkouts.execute(HISTORY_PARAMS);
 
   // Creation is persist-first and lives elsewhere (GymWorkoutStart.vue /
   // useStartWorkout) - this form only ever edits an existing workout.

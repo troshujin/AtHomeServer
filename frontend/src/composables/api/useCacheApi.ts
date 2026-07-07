@@ -24,6 +24,24 @@ function getOrCreateEntry<T>(key: string): CacheEntry<T> {
   return globalCache.get(key) as CacheEntry<T>;
 }
 
+/**
+ * Drops every cache entry keyed exactly `prefix` or prefixed `${prefix}_`.
+ * For paginated collections there's no single array to patch in place the
+ * way listUpdater does for a flat list (a mutation only knows about one
+ * page/filter combo, and several may be cached at once) - clearing them all
+ * and letting the next visit refetch is the correct, if less optimal,
+ * alternative. Callers pick a prefix that can't collide with unrelated
+ * keys (e.g. a plural list prefix like `workouts` vs a singular item
+ * prefix like `workout_<id>`).
+ */
+export function invalidateCache(prefix: string): void {
+  for (const key of Array.from(globalCache.keys())) {
+    if (key === prefix || key.startsWith(`${prefix}_`)) {
+      globalCache.delete(key);
+    }
+  }
+}
+
 export interface UseCachedApiReturn<T, P extends unknown[]> {
   execute: (...args: P) => Promise<void>;
   isFetching: Ref<boolean>;
@@ -106,7 +124,7 @@ export function useMutation<T, P extends unknown[], TListItem = T>(
     itemKeyFactory?: (result: T, ...args: P) => string;
     listKeyFactory?: (...args: P) => string;
     listUpdater?: (currentList: TListItem[], result: T, ...args: P) => TListItem[];
-    onSuccess?: (data: T) => void;
+    onSuccess?: (data: T, ...args: P) => void;
   },
 ) {
   const loading = ref(false);
@@ -140,7 +158,7 @@ export function useMutation<T, P extends unknown[], TListItem = T>(
       }
 
       if (options?.onSuccess) {
-        options.onSuccess(result.data);
+        options.onSuccess(result.data, ...args);
       }
 
       return result.data;

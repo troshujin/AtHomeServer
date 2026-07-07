@@ -29,16 +29,18 @@ import AppButton from '@/components/common/AppButton.vue';
 import SectionCard from '@/components/common/SectionCard.vue';
 import WorkoutFeed, { type WorkoutFeedItem } from '@/components/gym/WorkoutFeed.vue';
 import useWorkouts from '@/composables/gym/useWorkout';
-import { byMostRecent } from '@/composables/gym/utils/useWorkoutUtils';
+
+const PREVIEW_SIZE = 5;
 
 const { fetchWorkouts } = useWorkouts();
 const { data, loading, execute } = fetchWorkouts;
 
+// Already most-recent-first server-side.
 const items = computed<WorkoutFeedItem[]>(() =>
-  [...(data.value ?? [])].sort(byMostRecent).map((workout) => ({ workout })),
+  (data.value?.items ?? []).map((workout) => ({ workout })),
 );
 
-onMounted(() => execute());
+onMounted(() => execute({ limit: PREVIEW_SIZE }));
 </script>
 
 <style scoped>

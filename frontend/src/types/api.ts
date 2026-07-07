@@ -1,11 +1,12 @@
 import type { AxiosRequestConfig } from "axios";
 import type { BaseEntity } from "./base";
 
+/** Matches the backend's `Page[T]` response wrapper (core/common/schema.py). */
 export interface Paginated<T> {
-  data: T[];
-  count: number;
-  page: number;
+  items: T[];
   total: number;
+  skip: number;
+  limit: number;
 }
 
 export interface ApiOptions {

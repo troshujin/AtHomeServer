@@ -5,6 +5,11 @@ from core.common.schema import APIBaseModel, BaseEntity, BaseSearchQuery
 
 class FetchWorkoutFilters(BaseSearchQuery):
     search_query: str | None = None
+    finished: bool | None = None
+
+
+class UserDto(BaseEntity):
+    username: str
 
 
 class WorkoutRepDto(BaseEntity):
@@ -28,6 +33,7 @@ class WorkoutDto(BaseEntity):
     exercises: list[WorkoutExerciseDto]
     started_at: datetime
     ended_at: datetime | None
+    user: UserDto
 
 
 class MutateWorkoutRepDto(APIBaseModel):

@@ -53,7 +53,13 @@ const { data, loading, execute } =
     ? useFriends().fetchFriendActivity
     : usePromoted().fetchPromotedActivity;
 
-const items = computed<WorkoutFeedItem[]>(() => data.value ?? []);
+// `data` is a union (Paginated<GymActivityEntry> for friends, still mock;
+// Paginated<Workout> for promoted, real) since which composable backs it
+// is chosen once above - normalize per item via the one property only the
+// former has, rather than branching on `props.feed` a second time here.
+const items = computed<WorkoutFeedItem[]>(() =>
+  (data.value?.items ?? []).map((entry) => ('workout' in entry ? entry : { workout: entry, user: entry.user })),
+);
 
 onMounted(() => execute());
 </script>

@@ -5,7 +5,7 @@ Base repository to contain CRUD logic
 from typing import TypeVar, Generic
 import uuid
 from collections.abc import Sequence, Callable
-from sqlalchemy import select, update, delete, Select
+from sqlalchemy import select, update, delete, func, Select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.database.models import Base
@@ -34,6 +34,30 @@ class BaseRepository(Generic[Model]):
             
         result = await self.session.execute(query)
         return result.scalars().all()
+
+    async def get_page(
+        self,
+        skip: int,
+        limit: int,
+        modifier: Callable[[Select[tuple[Model]]], Select[tuple[Model]]] | None = None,
+    ) -> tuple[Sequence[Model], int]:
+        base_query = select(self.model)
+
+        if modifier:
+            base_query = modifier(base_query)
+
+        # Ordering is irrelevant to (and, wrapped in a bare subquery,
+        # sometimes rejected by) a COUNT - modifier() may have added one
+        # for the actual page query, so strip it here.
+        total = await self.session.scalar(
+            select(func.count()).select_from(base_query.order_by(None).subquery())
+        )
+
+        query = self.query_options(base_query).offset(skip).limit(limit)
+        result = await self.session.execute(query)
+        items = result.scalars().all()
+
+        return items, total or 0
 
     async def get_by_id(self, model_id: uuid.UUID) -> Model | None:
         query = select(self.model).where(self.model.id == model_id)

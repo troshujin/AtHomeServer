@@ -32,7 +32,15 @@ class GetWorkoutUseCase:
 
         workout = await self.repo.get_by_id(workout_id)
 
-        if not workout or str(workout.user_id) != user.id:
+        if not workout:
+            return fail(NotFoundException("Workout not found."))
+
+        is_owner = str(workout.user_id) == user.id
+        is_finished = workout.ended_at is not None
+
+        # Anyone can view a finished workout - that's what the promoted
+        # feed is. An in-progress one stays private to its owner.
+        if not is_owner and not is_finished:
             return fail(NotFoundException("Workout not found."))
 
         return succeed(WorkoutDto.model_validate(workout))

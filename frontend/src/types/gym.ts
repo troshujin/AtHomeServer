@@ -1,4 +1,5 @@
 import type { BaseEntity } from "./base";
+import type { User } from "./user";
 
 /** Derived from `endedAt`: a workout without an end time is still going. */
 export type WorkoutStatus = 'in-progress' | 'finished';
@@ -9,6 +10,10 @@ export interface Workout extends BaseEntity {
   startedAt: Date;
   /** Null while the workout is still in progress (mirrors the backend's nullable `ended_at`). */
   endedAt: Date | null;
+  /** Always present on real API responses (the backend embeds the owner
+   * directly - see WorkoutDto). Optional here only because the still-mock
+   * friend feed builds Workout objects that don't set it. */
+  user?: User;
 }
 
 export interface WorkoutExercise extends BaseEntity {

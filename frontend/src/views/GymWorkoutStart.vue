@@ -49,18 +49,17 @@ import SectionCard from '@/components/common/SectionCard.vue';
 import SkeletonBlock from '@/components/common/SkeletonBlock.vue';
 import useStartWorkout from '@/composables/gym/useStartWorkout';
 import useWorkouts from '@/composables/gym/useWorkout';
-import { byMostRecent } from '@/composables/gym/utils/useWorkoutUtils';
 import { formatDateShort } from '@/lib/formatters';
 
 const { fetchWorkouts } = useWorkouts();
 const { data, loading, execute } = fetchWorkouts;
 const { startWorkout, starting } = useStartWorkout();
 
-const openWorkouts = computed(() =>
-  (data.value ?? []).filter((workout) => !workout.endedAt).sort(byMostRecent),
-);
+// Filtering and ordering both happen server-side now (finished: false,
+// most-recently-started first).
+const openWorkouts = computed(() => data.value?.items ?? []);
 
-onMounted(() => execute());
+onMounted(() => execute({ finished: false, limit: 50 }));
 </script>
 
 <style scoped>

@@ -60,6 +60,15 @@ class CreateWorkoutUseCase:
         )
 
         workout = await self.repo.create(new_workout)
-        workout_dto = WorkoutDto.model_validate(workout)
 
-        return succeed(workout_dto)
+        # session.refresh() only refreshes attributes already loaded on the
+        # object - `user` never was (only `user_id` was set above), so
+        # without this, serializing `workout.user` directly can hit an
+        # unloaded relationship outside of an async-safe context. Re-fetch
+        # through the normal query path instead, same as update_workout.py.
+        refreshed = await self.repo.get_by_id(workout.id)
+
+        if not refreshed:
+            return fail(CustomException("Workout not found after creation"))
+
+        return succeed(WorkoutDto.model_validate(refreshed))

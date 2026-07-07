@@ -1,7 +1,6 @@
 import type { Workout } from '@/types/gym';
 import { useApiClient } from '../api/useApiClient';
 import { useCachedApi } from '../api/useCacheApi';
-import useCurrentUser, { toDisplayUser } from '../auth/useCurrentUser';
 import { findActivityByWorkoutId, type GymActivityEntry } from './mocks/workouts.mock';
 import { mockDelay, toMockResponse } from './utils/useMockApi';
 
@@ -9,17 +8,20 @@ export type { GymActivityEntry };
 
 const buildKey = (workoutId: string) => `workout_detail_${workoutId}`;
 
+const UNKNOWN_USER = { id: '', username: 'Unknown', createdAt: new Date(0), updatedAt: new Date(0) };
+
 /**
- * Resolves the detail page's entry (workout + who did it). My own workouts
- * come from the real `GET /workouts/{id}` (which only ever returns the
- * authenticated user's workouts) paired with `/me` for the byline. Friend
- * and promoted workouts still only exist as mock data - the backend has no
- * friends/promoted endpoint yet - and are recognizable by their `mock-` id
- * prefix, so those keep resolving from the local mock feeds.
+ * Resolves the detail page's entry (workout + who did it). Real workouts -
+ * both the current user's own and other users' finished ones, now that
+ * `GET /workouts/{id}` allows viewing any finished workout - come from
+ * that endpoint, which embeds the actual owner directly (WorkoutDto.user),
+ * so there's no need to separately assume "it's always me" the way this
+ * used to. Friend workouts still only exist as mock data - the backend has
+ * no friends endpoint yet - and are recognizable by their `mock-` id
+ * prefix, so those keep resolving from the local mock feed.
  */
 export default function useWorkoutDetail() {
   const api = useApiClient();
-  const { fetchMe } = useCurrentUser();
 
   const fetchWorkoutDetail = useCachedApi<GymActivityEntry, [workoutId: string]>(
     (workoutId) => buildKey(workoutId),
@@ -31,15 +33,10 @@ export default function useWorkoutDetail() {
         return toMockResponse(entry);
       }
 
-      const [workoutResponse] = await Promise.all([
-        api.get<Workout>(`/workouts/${workoutId}`),
-        fetchMe.execute(),
-      ]);
-
-      const me = fetchMe.data.value;
+      const workoutResponse = await api.get<Workout>(`/workouts/${workoutId}`);
       const entry: GymActivityEntry = {
         workout: workoutResponse.data,
-        user: me ? toDisplayUser(me) : { id: '', username: 'Me', createdAt: new Date(0), updatedAt: new Date(0) },
+        user: workoutResponse.data.user ?? UNKNOWN_USER,
       };
 
       return { ...workoutResponse, data: entry };
