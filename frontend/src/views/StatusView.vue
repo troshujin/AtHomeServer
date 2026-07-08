@@ -6,9 +6,10 @@
 
     <div class="status-page__actions">
       <AppButton v-if="code === 401" variant="primary" size="lg" :href="loginUrl">Log in</AppButton>
-      <AppButton :variant="code === 401 ? 'ghost' : 'primary'" :size="code === 401 ? 'md' : 'lg'" to="/">
-        Back to home
-      </AppButton>
+      <AppButton v-if="redirectParam" variant="ghost" size="lg" @click="redirect"
+        >Try again</AppButton
+      >
+      <AppButton variant="ghost" size="lg" to="/"> Back to home </AppButton>
     </div>
   </div>
 </template>
@@ -17,29 +18,40 @@
 import { computed } from 'vue';
 import AppButton from '@/components/common/AppButton.vue';
 import { API_BASE_URL } from '@/lib/config';
+import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps<{
   code: 401 | 403 | 404;
 }>();
 
+const route = useRoute();
+const router = useRouter();
+
+const redirectParam = computed(() => route.query.redirect as string | undefined);
+
 const COPY = {
   401: {
     title: 'Log in to continue',
-    message: 'This page is only visible once you\'re logged in.',
+    message: "This page is only visible once you're logged in.",
   },
   403: {
     title: 'No access',
-    message: 'You\'re logged in, but this page isn\'t available to your account.',
+    message: "You're logged in, but this page isn't available to your account.",
   },
   404: {
     title: 'Page not found',
-    message: 'This page doesn\'t exist — the link may be old or mistyped.',
+    message: "This page doesn't exist — the link may be old or mistyped.",
   },
 } as const;
 
 const copy = computed(() => COPY[props.code]);
 
 const loginUrl = `${API_BASE_URL}/auth/login`;
+const redirect = () => {
+  if (!redirectParam.value) return;
+
+  router.push(atob(redirectParam.value));
+};
 </script>
 
 <style scoped>

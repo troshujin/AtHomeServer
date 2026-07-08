@@ -28,7 +28,6 @@ class IdentityService:
         is_expired = auth_utils.is_token_expired(user_session.tokens.refresh_token)
         if is_expired:
             await self.redis.delete(session_key)
-            self.request.state.clear_session_cookies = True
             return None
 
         return user_session

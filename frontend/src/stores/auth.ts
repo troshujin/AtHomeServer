@@ -5,18 +5,16 @@ import type { PermissionShort } from '@/types/trojonetworks/permission';
 import { usePermissionChecker } from '@/composables/auth/usePermissionChecker';
 import { useRouter } from 'vue-router';
 import { API_BASE_URL } from '@/lib/config';
-import { hasCookie, SESSION_HINT_COOKIE } from '@/lib/cookies';
 import useCurrentUser from '@/composables/auth/useCurrentUser';
 
 export const useAuthStore = defineStore('auth', () => {
   const router = useRouter();
-  const { fetchMe: fetchMeApi, probeMe } = useCurrentUser();
   const {
     execute: fetchMe,
     loading: fetchMeLoading,
     error: fetchMeError,
     data: fetchMeResult,
-  } = fetchMeApi;
+  } = useCurrentUser().fetchMe;
 
   const permChecker = usePermissionChecker();
 
@@ -32,26 +30,12 @@ export const useAuthStore = defineStore('auth', () => {
       permChecker.hasPermission(permissionCollection.value, permChecker.permissions.Administrator),
   };
 
-  // Called on app mount. The real session cookie is httpOnly, so we can't
-  // read it directly - the hint cookie is a client-visible stand-in the
-  // backend sets/clears alongside it. Skipping `/me` when it's absent is
-  // what keeps an anonymous visit from being bounced through the 401/403
-  // redirect on every single page load (see StatusView/ErrorView).
-  const init = async () => {
-    if (!hasCookie(SESSION_HINT_COOKIE)) return;
+  const getCurrentUser = async () => {
     await fetchMe();
   };
 
   const login = async () => {
-    try {
-      await probeMe();
-      // Session's actually still valid (hint cookie missing/stale but the
-      // real one isn't) - just hydrate the store instead of round-tripping
-      // through the IdP for no reason.
-      await fetchMe();
-    } catch {
-      window.location.href = `${API_BASE_URL}/auth/login`;
-    }
+    router.push(API_BASE_URL + '/auth/login');
   };
 
   const signUp = async () => {
@@ -68,7 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
     error,
 
     // Data
-    init,
+    getCurrentUser,
     currentUser,
 
     // Computed

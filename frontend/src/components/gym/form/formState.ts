@@ -43,6 +43,20 @@ export interface WorkoutFormState {
 export const isCompletedSet = (set: SetFormState): boolean =>
   set.reps.some((rep) => rep.weight !== null && rep.amount !== null && rep.amount >= 1);
 
+/**
+ * Whether the form has enough content to actually be saved: a name, and at
+ * least one named exercise with a completed set. Mirrors the shape of
+ * GymWorkoutForm.vue's `buildPayload` validation (name + non-empty
+ * `collectExercises` result) without needing that function's timing-chain
+ * resolution - used to decide whether an "end workout now" action should
+ * even be offered, before a save is attempted.
+ */
+export const hasValidPayload = (form: WorkoutFormState): boolean =>
+  form.name.trim().length > 0 &&
+  form.exercises.some(
+    (exercise) => exercise.name.trim().length > 0 && exercise.sets.some(isCompletedSet),
+  );
+
 export const createRepFormState = (weight: number | null = null, amount: number | null = null): RepFormState => ({
   id: crypto.randomUUID(),
   weight,

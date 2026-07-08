@@ -8,7 +8,10 @@
       <SkeletonBlock height="11rem" />
     </div>
 
-    <EmptyState v-else-if="isEditing && !foundExisting" message="This workout doesn't exist, or isn't yours to edit.">
+    <EmptyState
+      v-else-if="isEditing && !foundExisting"
+      message="This workout doesn't exist, or isn't yours to edit."
+    >
       <AppButton variant="primary" to="/gym">Back to Gym</AppButton>
     </EmptyState>
 
@@ -47,7 +50,10 @@
       </SectionCard>
 
       <SectionCard title="Exercises">
-        <EmptyState v-if="form.exercises.length === 0" message="Add your first exercise to get started.">
+        <EmptyState
+          v-if="form.exercises.length === 0"
+          message="Add your first exercise to get started."
+        >
           <AppButton variant="primary" size="sm" @click="addExercise">+ Add exercise</AppButton>
         </EmptyState>
 
@@ -60,34 +66,94 @@
             @remove="removeExercise(exercise.id)"
           />
 
-          <AppButton class="workout-form__add-exercise" size="sm" @click="addExercise">+ Add exercise</AppButton>
+          <div class="workout-form__exercise-actions">
+            <AppButton size="sm" @click="addExercise">+ Add exercise</AppButton>
+            <AppButton v-if="isEditing && !form.endedAt" size="sm" @click="openEndWorkoutModal"
+              >End workout</AppButton
+            >
+          </div>
         </div>
       </SectionCard>
 
       <p v-if="errorMessage" class="workout-form__error" role="alert">{{ errorMessage }}</p>
 
-      <div class="workout-form__actions">
-        <AppButton :to="backLink">Cancel</AppButton>
-        <AppButton variant="primary" size="lg" type="submit" :disabled="submitting">
-          {{ submitting ? 'Saving…' : isEditing ? 'Save changes' : 'Create workout' }}
-        </AppButton>
-      </div>
-
-      <!-- Mobile-only (hidden > 640px): the same data, two ways to enter
-           it. Workout mode is the full-screen one-thumb logger for use at
-           the gym; both edit the same form state, so switching back and
-           forth never loses anything. -->
       <div class="workout-form__modes" role="group" aria-label="Editing mode">
         <button type="button" class="workout-form__mode is-active" aria-pressed="true">
-          Normal
+          Full view
         </button>
-        <button type="button" class="workout-form__mode" aria-pressed="false" @click="mode = 'workout'">
+        <button
+          type="button"
+          class="workout-form__mode"
+          aria-pressed="false"
+          @click="mode = 'workout'"
+        >
           Workout mode
         </button>
       </div>
+
+      <div class="workout-form__actions">
+        <AppButton :disabled="deleteWorkout.loading.value" @click="showDeleteConfirm = true">
+          Delete
+        </AppButton>
+        <div class="workout-form__actions-right">
+          <AppButton :to="backLink">Cancel</AppButton>
+          <AppButton variant="primary" size="lg" type="submit" :disabled="submitting">
+            {{ submitting ? 'Saving…' : isEditing ? 'Save changes' : 'Create workout' }}
+          </AppButton>
+        </div>
+      </div>
     </form>
 
-    <WorkoutMode v-if="mode === 'workout'" :form="form" @exit="mode = 'normal'" />
+    <WorkoutMode
+      v-if="mode === 'workout'"
+      :form="form"
+      :ending="endingWorkout"
+      @exit="mode = 'normal'"
+      @end-workout="handleEndWorkoutNow"
+    />
+
+    <ConfirmDialog
+      v-if="showDeleteConfirm"
+      title="Delete this workout?"
+      message="This can't be undone - the workout and all its exercises and sets will be gone for good."
+      confirm-label="Delete"
+      :loading="deleteWorkout.loading.value"
+      @confirm="handleDelete"
+      @close="showDeleteConfirm = false"
+    />
+
+    <Modal
+      v-if="showEndWorkoutModal"
+      title="End this workout?"
+      :enable-closing="!endingWorkout"
+      @close="showEndWorkoutModal = false"
+    >
+      <div class="end-workout">
+        <label class="form-field">
+          <span class="form-label">Ended</span>
+          <input v-model="endWorkoutAt" type="datetime-local" />
+        </label>
+        <AppButton
+          class="end-workout__now"
+          size="sm"
+          @click="endWorkoutAt = toDateTimeLocalValue(new Date())"
+        >
+          End now
+        </AppButton>
+        <p v-if="endWorkoutError" class="workout-form__error" role="alert">
+          {{ endWorkoutError }}
+        </p>
+      </div>
+
+      <template #footer>
+        <AppButton :disabled="endingWorkout" @click="showEndWorkoutModal = false">
+          Cancel
+        </AppButton>
+        <AppButton variant="primary" :disabled="endingWorkout" @click="confirmEndWorkout">
+          {{ endingWorkout ? 'Ending…' : 'End workout' }}
+        </AppButton>
+      </template>
+    </Modal>
   </PageShell>
 </template>
 
@@ -96,15 +162,28 @@ import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } 
 import { useRouter } from 'vue-router';
 import AppButton from '@/components/common/AppButton.vue';
 import BackLink from '@/components/common/BackLink.vue';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import Modal from '@/components/common/Modal.vue';
 import PageShell from '@/components/common/PageShell.vue';
 import SectionCard from '@/components/common/SectionCard.vue';
 import SkeletonBlock from '@/components/common/SkeletonBlock.vue';
 import ExerciseFormRow from '@/components/gym/form/ExerciseFormRow.vue';
-import { createExerciseFormState, createRepFormState, createSetFormState, type ExerciseFormState, type WorkoutFormState } from '@/components/gym/form/formState';
+import {
+  createExerciseFormState,
+  createRepFormState,
+  createSetFormState,
+  type ExerciseFormState,
+  type WorkoutFormState,
+} from '@/components/gym/form/formState';
 import WorkoutMode from '@/components/gym/form/WorkoutMode.vue';
 import useWorkouts, { HISTORY_PARAMS } from '@/composables/gym/useWorkout';
-import { applyTimeToDate, fromDateTimeLocalValue, toDateTimeLocalValue, toTimeInputValue } from '@/lib/datetimeInput';
+import {
+  applyTimeToDate,
+  fromDateTimeLocalValue,
+  toDateTimeLocalValue,
+  toTimeInputValue,
+} from '@/lib/datetimeInput';
 import type { MutateWorkout, MutateWorkoutExercise, Workout } from '@/types/gym';
 
 const props = defineProps<{
@@ -113,50 +192,44 @@ const props = defineProps<{
 
 const router = useRouter();
 const isEditing = computed(() => !!props.id);
-const backLink = computed(() => (isEditing.value ? `/gym/workouts/${props.id}` : '/gym'));
 
 const { fetchWorkouts, fetchWorkout, updateWorkout } = useWorkouts();
-// Both routes start in the skeleton: /:id/edit while the workout loads,
-// /new while the blank draft is being POSTed (creation is persist-first).
+const { deleteWorkout } = useWorkouts();
+
 const loadingExisting = ref(true);
 const foundExisting = ref(false);
 const submitting = ref(false);
+const showDeleteConfirm = ref(false);
 const errorMessage = ref<string | null>(null);
+
+const showEndWorkoutModal = ref(false);
+const endWorkoutAt = ref('');
+const endWorkoutError = ref<string | null>(null);
+const endingWorkout = ref(false);
 
 const defaultStart = () => {
   const now = new Date();
   now.setMinutes(Math.round(now.getMinutes() / 5) * 5, 0, 0);
   return now;
 };
+const backLink = computed(() => (isEditing.value ? `/gym/workouts/${props.id}` : '/gym'));
 
 const form = reactive<WorkoutFormState>({
   name: '',
   startedAt: toDateTimeLocalValue(defaultStart()),
-  // Empty by default: a workout being logged is in progress until the user
-  // explicitly ends it.
   endedAt: '',
   exercises: [createExerciseFormState()] as ExerciseFormState[],
 });
 
-// 'workout' opens the full-screen mobile logger (WorkoutMode.vue); the
-// switcher rendering below 640px is the only way in, so desktop never
-// sees it.
 const mode = ref<'normal' | 'workout'>('normal');
 
 const applyWorkoutToForm = (workout: Workout) => {
   form.name = workout.name;
   form.startedAt = toDateTimeLocalValue(workout.startedAt);
-  // No end time yet = the workout is still in progress; the field stays
-  // empty so saving keeps it in progress until the user fills it in.
   form.endedAt = workout.endedAt ? toDateTimeLocalValue(workout.endedAt) : '';
-  // A stored start that sits exactly where the chain would put it anyway
-  // loads as "following" (startTime null) so it keeps tracking edits to the
-  // workout start / earlier exercises; only a start that deviates from the
-  // chain gets pinned to its own wall-clock time.
+
   let cursor = workout.startedAt;
   form.exercises = workout.exercises.map((exercise) => {
-    // An exercise without an end time (still in progress) loads with the
-    // same default duration a fresh row gets; saving will pin an end.
     const durationMinutes = exercise.endedAt
       ? Math.max(1, Math.round((exercise.endedAt.getTime() - exercise.startedAt.getTime()) / 60000))
       : 10;
@@ -172,12 +245,6 @@ const applyWorkoutToForm = (workout: Workout) => {
   });
 };
 
-// An exercise without a pinned start (startTime === null) starts the
-// instant the previous one ends - and the very first one when the workout
-// itself does - so it keeps *following* that anchor when the workout start
-// or an earlier duration changes. Once the user types a start themselves
-// it's pinned to that wall-clock time (resolved against the workout's own
-// day) and stops following; everything after it chains off its end again.
 const resolveExerciseStart = (workoutStart: Date, cursor: Date, startTime: string | null): Date =>
   startTime === null ? cursor : applyTimeToDate(workoutStart, startTime);
 
@@ -193,14 +260,8 @@ const exerciseTimings = computed(() => {
 });
 
 onMounted(async () => {
-  // Warms the shared cache entry that exerciseHistory.ts reads its "known
-  // exercises" / "last time" suggestions from (same HISTORY_PARAMS, so it
-  // lands in the same cache key); not awaited because the form itself
-  // doesn't need it.
   fetchWorkouts.execute(HISTORY_PARAMS);
 
-  // Creation is persist-first and lives elsewhere (GymWorkoutStart.vue /
-  // useStartWorkout) - this form only ever edits an existing workout.
   if (!props.id) {
     loadingExisting.value = false;
     foundExisting.value = false;
@@ -227,13 +288,68 @@ const removeExercise = (id: string) => {
   form.exercises = form.exercises.filter((exercise) => exercise.id !== id);
 };
 
-// A set only counts once it has at least one complete (weight + reps)
-// drop step; incomplete rows within an otherwise-valid set (e.g. a
-// half-filled "+ Add drop" row) are just dropped rather than blocking
-// the save. Re-chains timings over just the exercises that survived
-// filtering, in order - dropped exercises (empty name/sets) don't eat
-// into the timeline. Pinned starts resolve the same way as in
-// exerciseTimings.
+const handleDelete = async () => {
+  if (!props.id) return;
+  try {
+    await deleteWorkout.execute(props.id);
+    router.push({ name: 'gym-workouts' });
+  } catch {
+  } finally {
+    showDeleteConfirm.value = false;
+  }
+};
+
+const openEndWorkoutModal = () => {
+  endWorkoutError.value = null;
+  endWorkoutAt.value = toDateTimeLocalValue(new Date());
+  showEndWorkoutModal.value = true;
+};
+
+// Sets the workout's end time, then runs it through the same strict,
+// validated save path as the explicit Save button - so it either lands on
+// the workout view page (the save's own success navigation) or surfaces the
+// usual validation error, which we mirror into the modal since the error
+// banner underneath the form is hidden behind it.
+const confirmEndWorkout = async () => {
+  endWorkoutError.value = null;
+  if (!endWorkoutAt.value) {
+    endWorkoutError.value = 'Pick an end time.';
+    return;
+  }
+
+  endingWorkout.value = true;
+  form.endedAt = endWorkoutAt.value;
+  try {
+    await handleSubmit();
+    if (errorMessage.value) {
+      endWorkoutError.value = errorMessage.value;
+    } else {
+      showEndWorkoutModal.value = false;
+    }
+  } finally {
+    endingWorkout.value = false;
+  }
+};
+
+// WorkoutMode's one-tap "End workout" - no time to pick a date mid-set, so
+// it ends now and saves straight through, same as the modal's "End now" +
+// confirm in one step. Its button only ever shows once the form already
+// has a valid payload, so a failure here means the save itself (e.g.
+// network) failed, not validation - drop back to the normal view so the
+// error banner (hidden behind the full-screen overlay) is visible.
+const handleEndWorkoutNow = async () => {
+  endingWorkout.value = true;
+  form.endedAt = toDateTimeLocalValue(new Date());
+  try {
+    await handleSubmit();
+    if (errorMessage.value) {
+      mode.value = 'normal';
+    }
+  } finally {
+    endingWorkout.value = false;
+  }
+};
+
 const collectExercises = (startedAt: Date): MutateWorkoutExercise[] => {
   const validExercises = form.exercises
     .map((exercise) => ({
@@ -243,7 +359,8 @@ const collectExercises = (startedAt: Date): MutateWorkoutExercise[] => {
       sets: exercise.sets
         .map((set) => ({
           reps: set.reps.filter(
-            (rep) => rep.weight !== null && rep.amount !== null && rep.weight >= 0 && rep.amount >= 1,
+            (rep) =>
+              rep.weight !== null && rep.amount !== null && rep.weight >= 0 && rep.amount >= 1,
           ),
         }))
         .filter((set) => set.reps.length > 0),
@@ -290,9 +407,6 @@ const buildPayload = (): MutateWorkout | null => {
   return { name, startedAt, endedAt, exercises };
 };
 
-// The lenient autosave variant: never blocks, just persists whatever is
-// valid so far (in-flight rows stay client-side until they're complete;
-// nothing is lost because the form state itself is the source of truth).
 const buildDraftPayload = (): MutateWorkout => {
   const startedAt = fromDateTimeLocalValue(form.startedAt);
   const endedAt = form.endedAt ? fromDateTimeLocalValue(form.endedAt) : null;
@@ -312,8 +426,6 @@ const autosaveState = ref<'idle' | 'pending' | 'saving' | 'saved' | 'error'>('id
 let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
 let autosaveEnabled = false;
 
-// Called once the workout is loaded/created; the nextTick keeps the act of
-// filling the form from the fetched data from counting as user input.
 const enableAutosave = () => {
   void nextTick(() => {
     autosaveEnabled = true;
@@ -326,7 +438,6 @@ const runAutosave = async () => {
   autosaveState.value = 'saving';
   try {
     await updateWorkout.execute(props.id, buildDraftPayload());
-    // A keystroke may have re-queued while the request was in flight.
     autosaveState.value = autosaveTimer ? 'pending' : 'saved';
   } catch {
     autosaveState.value = 'error';
@@ -345,7 +456,6 @@ watch(
 );
 
 onBeforeUnmount(() => {
-  // Flush a pending change instead of losing it on navigation.
   if (autosaveTimer) {
     clearTimeout(autosaveTimer);
     void runAutosave();
@@ -354,11 +464,16 @@ onBeforeUnmount(() => {
 
 const autosaveLabel = computed(() => {
   switch (autosaveState.value) {
-    case 'pending': return 'Unsaved changes…';
-    case 'saving': return 'Saving…';
-    case 'saved': return 'Saved';
-    case 'error': return "Couldn't autosave — retrying on next change";
-    default: return '';
+    case 'pending':
+      return 'Unsaved changes…';
+    case 'saving':
+      return 'Saving…';
+    case 'saved':
+      return 'Saved';
+    case 'error':
+      return "Couldn't autosave — retrying on next change";
+    default:
+      return '';
   }
 });
 
@@ -367,7 +482,6 @@ const handleSubmit = async () => {
   const payload = buildPayload();
   if (!payload || !props.id) return;
 
-  // The explicit save supersedes any queued autosave.
   if (autosaveTimer) {
     clearTimeout(autosaveTimer);
     autosaveTimer = null;
@@ -442,7 +556,20 @@ const handleSubmit = async () => {
   gap: 0.75rem;
 }
 
-.workout-form__add-exercise {
+.workout-form__exercise-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-self: flex-start;
+  gap: 0.75rem;
+}
+
+.end-workout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.end-workout__now {
   align-self: flex-start;
 }
 
@@ -458,12 +585,15 @@ const handleSubmit = async () => {
 
 .workout-form__actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 0.75rem;
 }
 
-/* Desktop never sees the mode switcher - workout mode is a phone-at-the-gym
-   interface, and 640px is the app's list/carousel "this is a phone" line. */
+.workout-form__actions-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
 .workout-form__modes {
   display: none;
 }
@@ -500,6 +630,11 @@ const handleSubmit = async () => {
   }
 
   .workout-form__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .workout-form__actions-right {
     flex-direction: column-reverse;
   }
 

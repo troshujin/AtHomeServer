@@ -107,8 +107,6 @@ onMounted(() => {
 });
 watch(() => props.id, (id) => execute(id));
 
-// Irreversible action - goes through ConfirmDialog per the style guide,
-// rather than deleting straight from the button click.
 const showDeleteConfirm = ref(false);
 
 const handleDelete = async () => {
@@ -116,8 +114,6 @@ const handleDelete = async () => {
     await deleteWorkout.execute(props.id);
     router.push({ name: 'gym-workouts' });
   } catch {
-    // Already reported to the user via the api client's response
-    // interceptor; stay on the page so they can retry.
   } finally {
     showDeleteConfirm.value = false;
   }

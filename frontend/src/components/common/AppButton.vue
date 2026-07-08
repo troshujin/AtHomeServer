@@ -55,6 +55,11 @@ const tag = computed(() => {
   border-radius: var(--radius-pill);
   font-family: inherit;
   font-weight: 600;
+  /* A native <button> (no to/href) gets the browser's own UA line-height
+     instead of inheriting body's 1.6 the way <a>/RouterLink do - without an
+     explicit value here, that mismatch makes a click-handler-only AppButton
+     render a couple pixels shorter than a to/href one of the same size. */
+  line-height: 1.6;
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;

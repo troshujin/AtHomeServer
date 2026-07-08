@@ -75,7 +75,7 @@ class RefreshUserSessionUseCase:
         tokens_result = auth_utils.resolve_token_response(response)
         
         if isinstance(tokens_result, Failure):
-            return Failure(tokens_result.error)
+            return fail(tokens_result.error)
 
         user_session.tokens = tokens_result.unwrap()
         return succeed(user_session)
@@ -182,20 +182,13 @@ class RefreshUserSessionUseCase:
 
         session = user_session.unwrap()
         rt_data = auth_utils.decode_refresh_jwt(session.tokens.refresh_token)
-        expires_in = rt_data.exp - int(datetime.now(timezone.utc).timestamp())
 
         session_key = AuthCacheKeyGenerator.session(session.id)
 
         await self.redis.set(
             session_key,
             session.model_dump_json(),
-            expires_in,
-        )
-
-        # Gets captured by SessionCookieSyncMiddleware
-        self.identity_service.request.state.refresh_session_cookies = (
-            session.id,
-            expires_in,
+            rt_data.exp - int(datetime.now(timezone.utc).timestamp()),
         )
 
         return user_session

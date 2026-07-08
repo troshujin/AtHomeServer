@@ -3,7 +3,6 @@ from typing import Annotated
 from fastapi import Depends
 from fastapi.responses import RedirectResponse
 
-from application.auth.cookies import clear_session_cookies
 from application.auth.services.identity import IdentityService
 from core.common.result import Result, succeed
 from core.configuration import config
@@ -27,6 +26,6 @@ class AuthLogoutUseCase:
             await self.redis.delete(AuthCacheKeyGenerator.session(session_id))
 
         response = RedirectResponse(url=config.auth.FRONTEND_URL, status_code=303)
-        clear_session_cookies(response)
+        response.delete_cookie(key="session_id", secure=True, samesite="lax")
 
         return succeed(response)

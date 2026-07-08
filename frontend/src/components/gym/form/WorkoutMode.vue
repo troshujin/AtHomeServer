@@ -54,7 +54,20 @@
 
         <div class="workout-mode__stage-actions">
           <AppButton variant="primary" size="lg" block @click="startSet">+ Start set</AppButton>
-          <AppButton size="lg" block @click="nextExercise">Next exercise &rarr;</AppButton>
+          <div class="workout-mode__next-row">
+            <AppButton
+              v-if="canEndWorkout"
+              size="lg"
+              class="workout-mode__end-workout"
+              :disabled="ending"
+              @click="emit('endWorkout')"
+            >
+              {{ ending ? 'Ending…' : 'End workout' }}
+            </AppButton>
+            <AppButton size="lg" class="workout-mode__next-exercise" @click="nextExercise">
+              Next exercise &rarr;
+            </AppButton>
+          </div>
         </div>
       </div>
 
@@ -132,6 +145,7 @@ import {
   createExerciseFormState,
   createRepFormState,
   createSetFormState,
+  hasValidPayload,
   isCompletedSet,
   type SetFormState,
   type WorkoutFormState,
@@ -150,10 +164,15 @@ import {
  */
 const props = defineProps<{
   form: WorkoutFormState;
+  /** True while the caller's own "end workout" save request is in flight -
+   * see ConfirmDialog's `loading` prop for the same caller-owns-the-async-
+   * call pattern. */
+  ending?: boolean;
 }>();
 
 const emit = defineEmits<{
   exit: [];
+  endWorkout: [];
 }>();
 
 type Stage = 'naming' | 'overview' | 'set';
@@ -170,6 +189,10 @@ const weight = ref<number | ''>(20);
 
 const exercise = computed(() => props.form.exercises.at(-1) ?? null);
 const completedSets = computed(() => (exercise.value?.sets ?? []).filter(isCompletedSet));
+
+// Only offer "End workout" once the form would actually save - avoids
+// showing an action that's just going to fail validation.
+const canEndWorkout = computed(() => hasValidPayload(props.form));
 
 // Computed, not a snapshot - the history reads the real `/workouts` list
 // from the shared cache, which may resolve after this overlay opens.
@@ -260,7 +283,7 @@ const bumpWeight = (delta: number) => {
 
 const addRep = () => {
   const w = normalizedWeight.value;
-  if (w <= 0) return;
+  if (w < 0) return;
 
   const last = bars.value.at(-1);
   if (last && last.weight === w) {
@@ -385,6 +408,27 @@ watch(stage, (value) => {
 
 .workout-mode__naming {
   padding-top: 1.5rem;
+}
+
+.workout-mode__next-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.workout-mode__next-exercise {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ~30% of the row, as asked for - "End workout" is a secondary, opt-in
+   escape hatch next to the primary "Next exercise" flow, so it gets the
+   smaller share. Tighter horizontal padding than the default `lg` size so
+   the label still fits at that width on a phone screen. */
+.workout-mode__end-workout {
+  flex: 0 0 30%;
+  min-width: 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .workout-mode__name-combo :deep(.combobox__input) {

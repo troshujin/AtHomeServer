@@ -72,14 +72,22 @@ export function useApiClient(config?: AxiosRequestConfig) {
       const silent = (error.config as ApiRequestConfig | undefined)?.silent ?? false;
 
       if (!silent) {
-        const uri = btoa(route.fullPath);
+        // Already on the status page itself - a background request (e.g.
+        // one firing from that page, or a shared composable) failing with
+        // the same status must not redirect again, or the redirect param
+        // nests another encoded copy of this same URL into itself.
+        const onStatusPage = route.name === 'unauthorized' || route.name === 'forbidden';
 
-        if (statusCode === 401) {
-          router.push(`/401?redirect=${uri}`);
-        }
+        if (!onStatusPage) {
+          const uri = btoa(route.fullPath);
 
-        if (statusCode === 403) {
-          router.push(`/403?redirect=${uri}`);
+          if (statusCode === 401) {
+            router.push(`/401?redirect=${uri}`);
+          }
+
+          if (statusCode === 403) {
+            router.push(`/403?redirect=${uri}`);
+          }
         }
 
         toasts.addToast({
