@@ -1,7 +1,7 @@
 <template>
-  <ul v-if="items.length > 0" class="workout-feed">
-    <li v-for="item in items" :key="item.workout.id" class="workout-feed__item">
-      <WorkoutCard :workout="item.workout" :user="item.user" />
+  <ul v-if="workouts.length > 0" class="workout-feed">
+    <li v-for="workout in workouts" :key="workout.id" class="workout-feed__item">
+      <WorkoutCard :workout="workout" :user="workout.user" />
     </li>
     <li v-if="moreTo" class="workout-feed__item workout-feed__item--more">
       <FeedMoreCard :to="moreTo" :label="moreLabel" />
@@ -23,20 +23,13 @@ import EmptyState from '@/components/common/EmptyState.vue';
 import FeedMoreCard from '@/components/gym/FeedMoreCard.vue';
 import WorkoutCard from '@/components/gym/WorkoutCard.vue';
 import type { Workout } from '@/types/gym';
-import type { User } from '@/types/user';
-
-export interface WorkoutFeedItem {
-  workout: Workout;
-  user?: User;
-}
 
 withDefaults(
   defineProps<{
-    items: WorkoutFeedItem[];
+    workouts: Workout[];
     loading?: boolean;
     emptyMessage?: string;
     skeletonRows?: number;
-    /** Destination for the trailing "view all" card, e.g. once the carousel runs out of items. */
     moreTo?: RouteLocationRaw;
     moreLabel?: string;
   }>(),
@@ -89,14 +82,6 @@ withDefaults(
   }
 }
 
-/*
- * Manual swipe carousel on small screens: one square-ish card at a time, with
- * the next one peeking in from the edge to hint that it's swipeable. It's a
- * plain horizontal scroller with scroll-snap - no gesture JS needed, so it
- * gets native momentum + snapping on touch devices for free. Finite by
- * construction: it only ever renders `items.length` cards plus the trailing
- * "view all" card, never loops.
- */
 @media (max-width: 640px) {
   .workout-feed {
     flex-direction: row;
@@ -118,9 +103,6 @@ withDefaults(
     max-width: 76%;
     aspect-ratio: 4 / 5;
     scroll-snap-align: start;
-    /* Without this, a fast trackpad/mouse-wheel swipe can carry momentum
-       straight past the next snap point and land two or three cards later.
-       `always` forces the scroll to stop at every card before continuing. */
     scroll-snap-stop: always;
   }
 

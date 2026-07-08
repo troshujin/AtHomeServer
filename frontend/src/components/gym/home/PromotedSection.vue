@@ -5,7 +5,7 @@
     </template>
 
     <WorkoutFeed
-      :items="items"
+      :workouts="workouts"
       :loading="loading"
       empty-message="Nothing promoted right now."
       more-to="/gym/promoted"
@@ -17,13 +17,14 @@
 import { computed, onMounted } from 'vue';
 import AppButton from '@/components/common/AppButton.vue';
 import SectionCard from '@/components/common/SectionCard.vue';
-import WorkoutFeed, { type WorkoutFeedItem } from '@/components/gym/WorkoutFeed.vue';
+import WorkoutFeed from '@/components/gym/WorkoutFeed.vue';
 import usePromoted from '@/composables/gym/usePromoted';
+import type { Workout } from '@/types/gym';
 
 const { fetchPromotedActivity } = usePromoted();
 const { data, loading, execute } = fetchPromotedActivity;
 
-const items = computed<WorkoutFeedItem[]>(() => data.value ?? []);
+const workouts = computed<Workout[]>(() => data.value?.items ?? []);
 
 onMounted(() => execute());
 </script>

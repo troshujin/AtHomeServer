@@ -35,8 +35,10 @@
 
       <SectionCard title="Workouts">
         <WorkoutFeed
-          :items="items"
-          :empty-message="profile.isMe ? 'You haven\'t logged a workout yet.' : 'No workouts to show yet.'"
+          :workouts="workouts"
+          :empty-message="
+            profile.isMe ? 'You haven\'t logged a workout yet.' : 'No workouts to show yet.'
+          "
         />
       </SectionCard>
     </template>
@@ -52,10 +54,11 @@ import EmptyState from '@/components/common/EmptyState.vue';
 import PageShell from '@/components/common/PageShell.vue';
 import SectionCard from '@/components/common/SectionCard.vue';
 import SkeletonBlock from '@/components/common/SkeletonBlock.vue';
-import WorkoutFeed, { type WorkoutFeedItem } from '@/components/gym/WorkoutFeed.vue';
+import WorkoutFeed from '@/components/gym/WorkoutFeed.vue';
 import useUserProfile from '@/composables/gym/useUserProfile';
 import { useWorkoutUtils } from '@/composables/gym/utils/useWorkoutUtils';
 import { formatKg } from '@/lib/formatters';
+import type { Workout } from '@/types/gym';
 
 const props = defineProps<{
   id: string;
@@ -67,17 +70,20 @@ const { data: profile, loading, execute } = fetchUserProfile;
 const initials = computed(() => (profile.value?.user.username ?? '').slice(0, 2).toUpperCase());
 
 const totalVolume = computed(() =>
-  (profile.value?.workouts ?? []).reduce((sum, workout) => sum + useWorkoutUtils(workout).getVolume(), 0),
+  (profile.value?.workouts ?? []).reduce(
+    (sum, workout) => sum + useWorkoutUtils(workout).getVolume(),
+    0,
+  ),
 );
 
-// No `user` on the items - the whole page is already about this person, so
-// repeating their avatar on every card would just be noise.
-const items = computed<WorkoutFeedItem[]>(() =>
-  (profile.value?.workouts ?? []).map((workout) => ({ workout })),
-);
+const workouts = computed<Workout[]>(() => profile.value?.workouts ?? []);
 
 onMounted(() => execute(props.id));
-watch(() => props.id, (id) => execute(id));
+
+watch(
+  () => props.id,
+  (id) => execute(id),
+);
 </script>
 
 <style scoped>
