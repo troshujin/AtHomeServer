@@ -27,11 +27,10 @@
           </RouterLink>
         </div>
 
-        <!-- Only rendered when the browser has actually offered
-             installability (usePwaInstall) - never a dead button. -->
         <div v-if="canInstall" class="install-slot">
-          <button class="btn-install" type="button" @click="installApp">
-            <span aria-hidden="true">&#8595;</span> Install app
+          <button class="btn-install" type="button" aria-label="Install app" @click="installApp">
+            <Icon icon="md.download" />
+            <span class="btn-install__label">Install app</span>
           </button>
         </div>
 
@@ -80,11 +79,6 @@
             <span class="user-name">{{ displayName }}</span>
           </RouterLink>
 
-          <button v-if="canInstall" class="mobile-theme-button" type="button" @click="installApp">
-            <span class="mobile-theme-button__icon" aria-hidden="true">&#8595;</span>
-            <span class="mobile-theme-button__label">Install as app</span>
-          </button>
-
           <button class="mobile-theme-button" type="button" @click="openThemeMenu">
             <span class="mobile-theme-button__icon" aria-hidden="true">{{ currentTheme.icon }}</span>
             <span class="mobile-theme-button__label">Theme: {{ currentTheme.name }}</span>
@@ -94,12 +88,20 @@
       </div>
     </Transition>
     </Teleport>
+
+    <InstallHelpModal
+      v-if="isInstallHelpOpen"
+      :platform="platform"
+      @close="isInstallHelpOpen = false"
+    />
   </header>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import Icon from '@/components/common/Icon.vue';
+import InstallHelpModal from '@/components/common/InstallHelpModal.vue';
 import ThemeSwitcher from '@/components/common/ThemeSwitcher.vue';
 import usePwaInstall from '@/composables/usePwaInstall';
 import { API_BASE_URL } from '@/lib/config';
@@ -110,11 +112,15 @@ import { getThemeDefinition, useThemeStore } from '@/stores/theme';
 const authStore = useAuthStore();
 const themeStore = useThemeStore();
 const route = useRoute();
-const { canInstall, install } = usePwaInstall();
+const { canInstall, install, platform } = usePwaInstall();
+const isInstallHelpOpen = ref(false);
 
-const installApp = () => {
+// Native prompt when the browser offers one; otherwise the platform's
+// manual "Add to Home Screen" steps (see usePwaInstall for the split).
+const installApp = async () => {
   closeMenu();
-  void install();
+  const promptShown = await install();
+  if (!promptShown) isInstallHelpOpen.value = true;
 };
 
 const navLinks = [

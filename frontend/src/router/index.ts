@@ -1,4 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { safeBtoa } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,6 +19,7 @@ const router = createRouter({
       component: () => import('@/views/GymHome.vue'),
       meta: {
         title: 'Gym',
+        requiresAuth: true,
       },
     },
     {
@@ -25,6 +28,7 @@ const router = createRouter({
       component: () => import('@/views/GymWorkoutList.vue'),
       meta: {
         title: 'My lifts',
+        requiresAuth: true,
       },
     },
     {
@@ -33,6 +37,7 @@ const router = createRouter({
       component: () => import('@/views/GymWorkoutStart.vue'),
       meta: {
         title: 'Start workout',
+        requiresAuth: true,
       },
     },
     {
@@ -42,6 +47,7 @@ const router = createRouter({
       props: true,
       meta: {
         title: 'Workout',
+        requiresAuth: true,
       },
     },
     {
@@ -51,6 +57,7 @@ const router = createRouter({
       props: true,
       meta: {
         title: 'Edit workout',
+        requiresAuth: true,
       },
     },
     {
@@ -60,6 +67,7 @@ const router = createRouter({
       props: { feed: 'friends' },
       meta: {
         title: 'Friends',
+        requiresAuth: true,
       },
     },
     {
@@ -69,6 +77,7 @@ const router = createRouter({
       props: { feed: 'promoted' },
       meta: {
         title: 'Promoted',
+        requiresAuth: true,
       },
     },
     {
@@ -78,9 +87,9 @@ const router = createRouter({
       props: true,
       meta: {
         title: 'Profile',
+        requiresAuth: true,
       },
     },
-    // The API client redirects here when a request comes back 401/403.
     {
       path: '/401',
       name: 'unauthorized',
@@ -117,16 +126,27 @@ const router = createRouter({
       },
     },
   ],
-})
+});
 
-router.beforeEach(async (to, from, next) => {
-  next()
-})
+router.beforeEach(async (to, from) => {
+  if (to.meta.requiresAuth === true) {
+    const authStore = useAuthStore();
+
+    if (!authStore.isAuthenticated) {
+      return {
+        path: '/401',
+        query: { redirect: safeBtoa(to.fullPath) },
+      };
+    }
+  }
+
+  return true;
+});
 
 router.afterEach((to) => {
   if (to.meta.title) {
-    document.title = to.meta.title as string
+    document.title = to.meta.title as string;
   }
-})
+});
 
-export default router
+export default router;

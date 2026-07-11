@@ -149,18 +149,19 @@
   }
 }
 
-.install-slot {
-  // Desktop-only, same split as the theme switcher: on mobile the install
-  // entry point lives in the full-screen menu's footer instead.
-  @include respond-to('medium') {
-    display: none;
-  }
-}
-
+// Unlike .auth-inline / .theme-switcher-slot, the install button stays in
+// the navbar on mobile (icon-only below 'small') - it has no counterpart in
+// the mobile menu footer.
 .btn-install {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+
+  // The glyph tracks font-size (see Icon.vue); a touch larger than the
+  // 0.85rem label so it reads clearly at icon-only size on small screens.
+  .icon {
+    font-size: 1.05rem;
+  }
   min-height: 2.5rem;
   padding: 0.45rem 1rem;
   border: 1px solid var(--surface-border);
@@ -175,6 +176,18 @@
   &:hover {
     background: rgba(var(--color-primary-rgb), 0.12);
     color: var(--color-primary);
+  }
+
+  @include respond-to('small') {
+    // Icon-only, sized to match .menu-toggle next to it.
+    width: 2.5rem;
+    min-height: 2.5rem;
+    justify-content: center;
+    padding: 0;
+
+    .btn-install__label {
+      display: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

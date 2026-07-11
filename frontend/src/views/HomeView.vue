@@ -1,22 +1,8 @@
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
-  <button @click="fetch">Click me</button>
+  <h1>The AtHomeServer</h1>
+  <p>Hosted at your local bartender</p>
+  <p>Live happily!</p>
+  <p>Checkout the <RouterLink to="/gym">Gym</RouterLink> page!</p>
 </template>
 
-<script lang="ts" setup>
-import useWorkouts from '@/composables/gym/useWorkout';
-
-const workoutApi = useWorkouts();
-const fetch = async () => {
-  const { data, error, loading, execute } = workoutApi.fetchWorkouts;
-  await execute();
-
-  console.log(loading.value)
-  console.log(data.value)
-  console.log(error.value)
-}
-</script>
+<script lang="ts" setup></script>

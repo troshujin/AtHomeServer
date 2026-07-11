@@ -8,9 +8,9 @@ export interface ThemeDefinition {
   icon: string;
 }
 
-// The full catalog. A theme isn't "real" until it's both here (id, display
-// name, icon) and has a matching `[data-theme='id']` block in
-// src/styles/_themes.scss - see frontend/docs/STYLE_GUIDE.md "Theming."
+// A theme isn't "real" until it's both here (id, displayname, icon)
+// and has a matching `[data-theme='id']` block in src/styles/_themes.scss
+//  - see frontend/docs/STYLE_GUIDE.md "Theming."
 export const THEMES: ThemeDefinition[] = [
   { id: 'light', name: 'Light', icon: '☀️' },
   { id: 'dark', name: 'Dark', icon: '🌙' },
@@ -46,9 +46,6 @@ const applyThemeAttribute = (value: ThemeName): void => {
   document.documentElement.dataset.theme = value;
 };
 
-// Runs once, at module load. main.ts imports this store before mounting the
-// app, so the right [data-theme] is on <html> before first paint - no flash
-// of the wrong theme.
 const initialTheme: ThemeName = getStoredTheme() ?? getSystemTheme();
 applyThemeAttribute(initialTheme);
 
@@ -62,7 +59,6 @@ export const useThemeStore = defineStore('theme', () => {
     applyThemeAttribute(value);
   };
 
-  /** Quick light/dark swap - ignores which of the 9 extra themes is active. */
   const toggleTheme = (): void => {
     setTheme(theme.value === 'dark' ? 'light' : 'dark');
   };
@@ -75,8 +71,6 @@ export const useThemeStore = defineStore('theme', () => {
     isPickerOpen.value = false;
   };
 
-  // Follow the OS theme live, but only until the user makes an explicit
-  // choice via setTheme/toggleTheme - after that we respect their choice.
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
     if (getStoredTheme()) return;
     theme.value = event.matches ? 'dark' : 'light';

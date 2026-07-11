@@ -15,17 +15,22 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import AppButton from '@/components/common/AppButton.vue';
 import { API_BASE_URL } from '@/lib/config';
 import { useRoute, useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps<{
   code: 401 | 403 | 404;
 }>();
 
+const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
+
+const { isAuthenticated } = storeToRefs(auth);
 
 const redirectParam = computed(() => route.query.redirect as string | undefined);
 
@@ -52,6 +57,11 @@ const redirect = () => {
 
   router.push(atob(redirectParam.value));
 };
+
+watch(isAuthenticated, (newValue) => {
+  console.log("Yes")
+  if (newValue === true) redirect();
+}, { immediate: true });
 </script>
 
 <style scoped>

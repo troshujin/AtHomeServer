@@ -194,6 +194,27 @@ choose the tag themselves.
   Use it for "request in flight," not for "this action doesn't apply yet"
   (prefer just not rendering the button, or an `EmptyState`, for that).
 
+### `common/Icon.vue`
+
+The one way to render a UI glyph: `<Icon icon="md.download" />`. Icons are
+inline SVG path data from the registry in `lib/icons.ts` — no icon font, no
+CDN (same no-external-dependency reasoning as the font stack in
+[§3](#3-design-tokens)). The registry is namespaced sets (`md.*` Material
+Design, `fa.*` Font Awesome Free solid, `custom.*` hand-drawn), and the
+`icon` prop is typed as the full `'set.name'` union, so every valid name
+autocompletes and a typo fails type-check. Adding an icon is a one-line
+paste into the right set in `lib/icons.ts`.
+
+The glyph is `1em` of `currentColor` — it sizes and colors like a text
+character, so style the *surrounding* element (or set `font-size` on
+`.icon`) rather than passing size/color props. It's `aria-hidden` always:
+an icon never carries meaning alone, the host control provides the
+accessible name (`aria-label` on icon-only buttons). Don't add new emoji
+or entity-character glyphs (`&#8595;`-style) to UI chrome — put a real
+path in the registry instead. (The theme registry's emoji icons and
+`WorkoutCard`'s type emoji predate this and are content, not chrome —
+they stay as they are.)
+
 ### `common/SectionCard.vue`
 
 The rounded `--color-surface` container every "section" on a page lives in
@@ -235,6 +256,17 @@ The tint (rather than solid fill) is why it clears contrast in both themes
 without a separate dark-theme override — see [§3](#3-design-tokens)'s
 contrast rules for why `--color-danger` isn't used as a button's solid
 background.
+
+### `common/InstallHelpModal.vue`
+
+The manual "Add to Home Screen" walkthrough shown when the install button
+is tapped in a browser with no programmatic install prompt — iOS (every
+browser there), Firefox, or Chromium on a plain-HTTP origin. Steps are
+per-platform (`platform` prop from `usePwaInstall`), and the whole flow is
+owned by `NavBar.vue`'s install button: native prompt when available,
+this modal otherwise. `usePwaInstall`'s `canInstall` already hides the
+button on desktop browsers that can't install at all, so this is never a
+dead end.
 
 ### `common/EmptyState.vue`
 
@@ -826,6 +858,10 @@ Before adding a new component or screen, confirm:
       gap.
 - [ ] Buttons use `AppButton`; containers use `SectionCard`, unless there's
       a documented reason not to (and if so, consider updating this guide).
+- [ ] UI glyphs use `Icon` (`icon="set.name"`, backed by `lib/icons.ts` —
+      add missing icons there), never entity characters or emoji in chrome,
+      and never meaning carried by the glyph alone ([§5](#commoniconvue)):
+      icon-only controls get an `aria-label`.
 - [ ] Nothing was copy-pasted that should be a component ([§5](#5-component-patterns)'s
       "componentize eagerly" rule): pages compose `PageShell`/`PageHeader`/
       `BackLink`, badges are `BadgePill`, and shared formatting/sorting
