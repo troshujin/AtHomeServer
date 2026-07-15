@@ -1,7 +1,7 @@
 <template>
   <SectionCard title="Friends">
     <template #actions>
-      <AppButton size="sm">Manage friends</AppButton>
+      <AppButton size="sm" to="/friends">Manage friends</AppButton>
       <AppButton size="sm" to="/gym/friends">View All</AppButton>
     </template>
 

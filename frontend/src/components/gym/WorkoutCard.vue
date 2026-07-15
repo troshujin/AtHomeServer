@@ -30,6 +30,7 @@
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useWorkoutUtils } from '@/composables/gym/utils/useWorkoutUtils';
+import { getCardTheme } from '@/lib/cardThemes';
 import { formatDateShort, formatKg } from '@/lib/formatters';
 import type { Workout } from '@/types/gym';
 import type { User } from '@/types/user';
@@ -47,18 +48,7 @@ const formattedVolume = computed(() => formatKg(workoutUtils.getVolume()));
 // date is almost always "today" for a live workout anyway.
 const isInProgress = computed(() => workoutUtils.getStatus() === 'in-progress');
 
-const initials = computed(() => (props.user?.username.slice(0, 2).toUpperCase() ?? ''));
-
-// A deterministic per-card accent + icon, so the carousel reads as a row of
-// distinct trading cards rather than repeats of the same white tile.
-const CARD_THEMES: [string, string][] = [
-  ['#3b82f6', '#8b5cf6'],
-  ['#10b981', '#0891b2'],
-  ['#f43f5e', '#fb923c'],
-  ['#8b5cf6', '#ec4899'],
-  ['#f59e0b', '#ef4444'],
-  ['#06b6d4', '#6366f1'],
-];
+const initials = computed(() => props.user?.username.slice(0, 2).toUpperCase() ?? '');
 
 const TYPE_ICONS: Record<string, string> = {
   'push day': '💪',
@@ -68,17 +58,10 @@ const TYPE_ICONS: Record<string, string> = {
   'upper body': '⚡',
 };
 
-const hashString = (value: string): number => {
-  let hash = 0;
-  for (let i = 0; i < value.length; i += 1) {
-    hash = (Math.imul(hash, 31) + value.charCodeAt(i)) >>> 0;
-  }
-  return hash;
-};
-
-// The modulo keeps the index in range of the non-empty literal array, which
-// `noUncheckedIndexedAccess` can't see - hence the assertion.
-const theme = computed(() => CARD_THEMES[hashString(props.workout.id) % CARD_THEMES.length]!);
+// A deterministic per-card accent (see lib/cardThemes.ts) + icon, so the
+// carousel reads as a row of distinct trading cards rather than repeats of
+// the same white tile.
+const theme = computed(() => getCardTheme(props.workout.id));
 
 const themeStyle = computed(() => ({
   '--card-from': theme.value[0],

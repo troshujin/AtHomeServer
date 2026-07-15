@@ -14,6 +14,34 @@ const router = createRouter({
       },
     },
     {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/views/ProfileView.vue'),
+      meta: {
+        title: 'Profile',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/friends',
+      name: 'friends',
+      component: () => import('@/views/FriendsView.vue'),
+      meta: {
+        title: 'Friends',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/users/:id',
+      name: 'user-card',
+      component: () => import('@/views/UserCardView.vue'),
+      props: true,
+      meta: {
+        title: 'Profile',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/gym',
       name: 'gym',
       component: () => import('@/views/GymHome.vue'),

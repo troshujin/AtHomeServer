@@ -1,5 +1,5 @@
 <template>
-  <RouterLink class="user-badge" :class="`user-badge--${size}`" :to="`/gym/users/${user.id}`">
+  <RouterLink class="user-badge" :class="`user-badge--${size}`" :to="to ?? `/gym/users/${user.id}`">
     <span class="user-badge__avatar" aria-hidden="true">{{ initials }}</span>
     <span class="user-badge__name">{{ user.username }}</span>
   </RouterLink>
@@ -7,16 +7,20 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { RouterLink } from 'vue-router';
+import { RouterLink, type RouteLocationRaw } from 'vue-router';
 import type { User } from '@/types/user';
 
 const props = withDefaults(
   defineProps<{
     user: User;
     size?: 'sm' | 'md';
+    /** Where the badge links; defaults to the user's gym profile. The
+     * friends screens point it at the general profile card page instead. */
+    to?: RouteLocationRaw;
   }>(),
   {
     size: 'md',
+    to: undefined,
   },
 );
 

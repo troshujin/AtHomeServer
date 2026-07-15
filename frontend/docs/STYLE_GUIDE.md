@@ -91,8 +91,9 @@ Beyond the core palette, content cards (see [§7](#7-engagement-bait-the-healthy
 use a curated set of 6 saturated gradient pairs, picked deterministically per
 item so the same item always renders the same color. Don't add more than
 needed — the point is variety at a glance, not a rainbow. Current set lives
-in `WorkoutCard.vue`'s `CARD_THEMES`, and — unlike everything else on this
-page — it's **the same in both themes on purpose**. See [§9](#9-theming).
+in `lib/cardThemes.ts` (`CARD_THEMES`/`getCardTheme`, shared by
+`WorkoutCard.vue` and `ProfileCard.vue`), and — unlike everything else on
+this page — it's **the same in both themes on purpose**. See [§9](#9-theming).
 
 ### Shape & elevation
 
@@ -307,9 +308,19 @@ information (see the workout detail byline).
 
 ### `common/UserBadge.vue`
 
-Avatar-initials-circle + username, linking to `/gym/users/:id`. Used
-anywhere a piece of content needs to show (and link to) who made it —
-currently the workout detail page's byline. `size`: `sm` / `md`.
+Avatar-initials-circle + username. Links to `/gym/users/:id` by default
+(content bylines, e.g. the workout detail page); pass `to` to point it
+elsewhere — the friends screens send it to `/users/:id`, the general
+profile-card page. `size`: `sm` / `md`.
+
+### `common/ToggleRow.vue`
+
+A labeled on/off setting row with a switch affordance: icon + label +
+description on the left, the switch on the right, and the *whole row* is
+one tap target (`aria-pressed` carries the state). Use it for any boolean
+setting (first use: the profile page's "Private card") instead of a bare
+checkbox or a hand-rolled switch. `disabled` means "save in flight," same
+convention as `AppButton`.
 
 ### `common/ComboBox.vue`
 
@@ -353,6 +364,53 @@ reinvented per feature.
   `items.length` cards. A trailing `FeedMoreCard` (dashed outline, distinct
   from content cards on purpose) is the *only* thing after the last real
   card — that's the "end of list" signal, not a loop back to card one.
+
+### `profile/ProfileCard.vue`
+
+A user's shareable "trading card" — the [§7](#7-engagement-bait-the-healthy-kind)
+treatment applied to a *person* instead of a workout: deterministic per-user
+gradient from `lib/cardThemes.ts` (theme-invariant, same exemption as
+`WorkoutCard`), frosted avatar, and **dynamic stat slots**. Slots are pure
+data (`stats: ProfileStat[]`, slot 0 renders as the card's single hero stat,
+the rest as a supporting row) — the card resolves each namespaced stat key
+(`gym.total_volume` today, `music.*` tomorrow) through the presentation
+registry in `lib/profileStats.ts`, so a new stat kind is one registry entry
+plus its backend computation, with no card changes. Which stats fill the
+slots is the user's own pick, stored server-side (`/me/card-stats`) and
+edited on the profile page (`ProfileView.vue`).
+
+### `profile/StatPickerTile.vue`
+
+One toggleable stat in the profile page's "card stats" picker: the stat's
+live value as its own headline (seeing the number *is* the pitch), a
+one-line description, and an add/check state. Selected tiles never disable —
+removing must stay as easy as adding ([§7](#7-engagement-bait-the-healthy-kind)'s
+no-friction-on-opt-out rule); only *adding beyond the slot limit* disables.
+
+### `friends/FriendRow.vue`, `friends/AddFriendModal.vue`, `friends/QrScannerModal.vue`
+
+The friends-management pieces (`FriendsView.vue`, plus `UserCardView.vue`
+for the page a friend-invite link lands on):
+
+- `FriendRow` — one person in any relation list (requests, friends,
+  blocked): a `UserBadge` linking to their `/users/:id` card page ("view
+  profile" is the row itself, not a button) plus a slot for that list's
+  actions. Accept/Ignore/Unblock act immediately (reversible by asking
+  again); Cancel/Unfriend/Block go through exactly one `ConfirmDialog`,
+  via the shared `useRelationActions` composable — reuse it rather than
+  re-deriving the dialog copy per view.
+- `AddFriendModal` — the "Add friend" sheet: a QR + shareable 30-minute
+  short link (`/api/short/<hash>`) landing on your `/users/:id` page. The
+  QR sits on a **white tile in every theme** — QR codes need dark-on-light
+  modules to scan, so like `CARD_THEMES` this is deliberate, documented
+  theme-invariance, not a missing token. Uses the bundled `qrcode` package
+  (compiled in — the no-external-dependency rule is about runtime
+  CDN/network fetches, not npm).
+- `QrScannerModal` — camera scanning via the platform's own
+  `BarcodeDetector` (native-feel rule §2 — no decoding library); browsers
+  without it get an explicit "share the link instead" fallback, never a
+  broken camera view. Only same-origin codes navigate — a QR is untrusted
+  input.
 
 ### `gym/FeedMoreCard.vue`
 

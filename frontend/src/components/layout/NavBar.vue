@@ -1,5 +1,9 @@
 <template>
-  <header ref="headerRef" class="app-header" :class="{ 'is-scrolled': isScrolled, 'is-open': isMenuOpen }">
+  <header
+    ref="headerRef"
+    class="app-header"
+    :class="{ 'is-scrolled': isScrolled, 'is-open': isMenuOpen }"
+  >
     <nav class="navbar" aria-label="Main navigation">
       <RouterLink class="navbar-brand" to="/" @click="closeMenu">
         <span class="brand-mark">HS</span>
@@ -8,17 +12,15 @@
 
       <ul class="navbar-links">
         <li v-for="link in navLinks" :key="link.to">
-          <RouterLink class="nav-link" :to="link.to" active-class="is-active">{{ link.label }}</RouterLink>
+          <RouterLink class="nav-link" :to="link.to" active-class="is-active">{{
+            link.label
+          }}</RouterLink>
         </li>
       </ul>
 
       <div class="navbar-actions">
         <div class="auth-inline">
-          <a
-            v-if="!authStore.currentUser"
-            class="btn-login"
-            :href="`${API_BASE_URL}/auth/login`"
-          >
+          <a v-if="!authStore.currentUser" class="btn-login" :href="`${API_BASE_URL}/auth/login`">
             Log in
           </a>
           <RouterLink v-else class="user-chip" :to="profileLink" @click="closeMenu">
@@ -54,39 +56,51 @@
     </nav>
 
     <Teleport to="body">
-    <Transition name="mobile-menu">
-      <div v-if="isMenuOpen" id="mobile-menu" ref="mobileMenuRef" class="mobile-menu">
-        <div class="mobile-menu__scroll">
-          <ul class="mobile-links">
-            <li v-for="link in navLinks" :key="link.to">
-              <RouterLink class="mobile-link" :to="link.to" active-class="is-active" @click="closeMenu">
-                {{ link.label }}
-              </RouterLink>
-            </li>
-          </ul>
-        </div>
+      <Transition name="mobile-menu">
+        <div v-if="isMenuOpen" id="mobile-menu" ref="mobileMenuRef" class="mobile-menu">
+          <div class="mobile-menu__scroll">
+            <ul class="mobile-links">
+              <li v-for="link in navLinks" :key="link.to">
+                <RouterLink
+                  class="mobile-link"
+                  :to="link.to"
+                  active-class="is-active"
+                  @click="closeMenu"
+                >
+                  {{ link.label }}
+                </RouterLink>
+              </li>
+            </ul>
+          </div>
 
-        <div class="mobile-menu__footer">
-          <a
-            v-if="!authStore.currentUser"
-            class="btn-login btn-login--block"
-            :href="`${API_BASE_URL}/auth/login`"
-          >
-            Log in
-          </a>
-          <RouterLink v-else class="user-chip user-chip--block" :to="profileLink" @click="closeMenu">
-            <span class="user-avatar">{{ initials }}</span>
-            <span class="user-name">{{ displayName }}</span>
-          </RouterLink>
+          <div class="mobile-menu__footer">
+            <a
+              v-if="!authStore.currentUser"
+              class="btn-login btn-login--block"
+              :href="`${API_BASE_URL}/auth/login`"
+            >
+              Log in
+            </a>
+            <RouterLink
+              v-else
+              class="user-chip user-chip--block"
+              :to="profileLink"
+              @click="closeMenu"
+            >
+              <span class="user-avatar">{{ initials }}</span>
+              <span class="user-name">{{ displayName }}</span>
+            </RouterLink>
 
-          <button class="mobile-theme-button" type="button" @click="openThemeMenu">
-            <span class="mobile-theme-button__icon" aria-hidden="true">{{ currentTheme.icon }}</span>
-            <span class="mobile-theme-button__label">Theme: {{ currentTheme.name }}</span>
-            <span class="mobile-theme-button__chevron" aria-hidden="true">&rsaquo;</span>
-          </button>
+            <button class="mobile-theme-button" type="button" @click="openThemeMenu">
+              <span class="mobile-theme-button__icon" aria-hidden="true">{{
+                currentTheme.icon
+              }}</span>
+              <span class="mobile-theme-button__label">Theme: {{ currentTheme.name }}</span>
+              <span class="mobile-theme-button__chevron" aria-hidden="true">&rsaquo;</span>
+            </button>
+          </div>
         </div>
-      </div>
-    </Transition>
+      </Transition>
     </Teleport>
 
     <InstallHelpModal
@@ -145,9 +159,9 @@ const displayName = computed(() =>
 
 const initials = computed(() => displayName.value.slice(0, 2).toUpperCase());
 
-// The chip used to point at a `/me` route that never existed; the user's
-// own profile page is the real destination.
-const profileLink = computed(() => `/gym/users/${authStore.currentUser?.id ?? ''}`);
+// The user's own profile page: card preview, card stats, and the entry
+// point to editing profile details.
+const profileLink = '/profile';
 
 const currentTheme = computed(() => getThemeDefinition(themeStore.theme));
 
