@@ -28,10 +28,6 @@ async def get_list(
     return await use_case(filters)
 
 
-# Registered before /{workout_id} - a uuid.UUID path param would otherwise
-# still match the literal segment "promoted" first (Starlette matches by
-# registration order, not by literal-vs-param specificity) and fail trying
-# to parse "promoted" as a UUID instead of ever reaching this route.
 @router.get("/promoted", response_model=Page[WorkoutDto])
 @resolve_response(200)
 @require_permission(IsAuthenticated)
@@ -50,7 +46,6 @@ async def get_single(workout_id: uuid.UUID, use_case: Annotated[GetWorkoutUseCas
 
 
 @router.post("", response_model=WorkoutDto, status_code=201)
-@resolve_response(201)
 @require_permission(IsAuthenticated)
 async def create(payload: MutateWorkoutDto, use_case: Annotated[CreateWorkoutUseCase, Depends()]):
     return await use_case(payload)
