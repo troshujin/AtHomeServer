@@ -46,6 +46,7 @@ async def get_single(workout_id: uuid.UUID, use_case: Annotated[GetWorkoutUseCas
 
 
 @router.post("", response_model=WorkoutDto, status_code=201)
+@resolve_response(201)
 @require_permission(IsAuthenticated)
 async def create(payload: MutateWorkoutDto, use_case: Annotated[CreateWorkoutUseCase, Depends()]):
     return await use_case(payload)
