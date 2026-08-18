@@ -1,12 +1,13 @@
 I have an idea for a new page on the web application.
-Call it the "Storyboard"
+Call it the "Storyboard", just like the gym, it will have a singular entry in the navbar.
 The focus again, is for mobile users.
 
 ## Part 1
 Part one of the idea is very simple.
-*Take the plan of the TPN in to account: C:\source\repos\ThirdPartyNetwork\PLAN.md (un implemented, it is being implemented with a few minor changes, but the files should be up to date).*
+*Take the plan of the TPN in to account: C:\source\repos\ThirdPartyNetwork\PLAN.md and supposedly implemented, but I'm still reviewing that.*
 
 1. Allow users to upload ALL of their photo's and video's.
+	- Allow bulk uploads, show a good progress bar per item.
 	- All files will be stored in TPN
 	- All files will be private from the start and author owned
 	- All file ID's will be stored in the AtHomeServer backend
@@ -14,7 +15,7 @@ Part one of the idea is very simple.
 	- Keep all privated
 	- Keep all private, except for these...
 	- Share all to network
-	- Share all, except for these...)
+	- Share all, except for these...
 3. Authors can then add Tags to these images.
 	- Tags can be any string
 4. Not author users can suggest tags for images (Admins can always add tags)
@@ -27,8 +28,8 @@ Allow full file management:
 ### A
 Part two allows users to make stories/collages of images.
 
-They can do so with either only their images or mix it up with images from people who shared their image with the network (we'll call it "public images", but in code they are only public within the network).
-Stories should be stored as a custom page in TPN so we can use it's sharing permission system. We can maybe use the page blocks for meta data, but maybe it would be better to keep all the data in the AtHomeServer's backend? (Q1)
+They can do so with either only their images or mix it up with images from people who shared their image with the network (we'll call it "public images", but in code they are only public within the network). (If an image from someone else was used, and is privated after it has been added to the story, show that the image is no longer available. The author of the story can see the authors of the media they use, only show those if the story is set to mixed owners. If they are the owner of a privated image which they used in a story, give them a button "You privated this image [Show in this story anyway]?" which adds a viewing link to the media and uses it here (or can we use the temporary image url here? so we dont give someone permanent access to a media item with url?)) 
+Stories should(could) be stored as a custom page entity in TPN so we can use it's sharing permission system. We can maybe use the page blocks for meta data, but maybe it would be better to keep all the data in the AtHomeServer's backend? (Q1)
 
 With the TPN sharing, we can add editors to the story, so people can make stories together, meaning they will have multiple authors!
 
